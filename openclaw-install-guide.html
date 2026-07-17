@@ -1,0 +1,2013 @@
+<meta charset="utf-8">
+<title>OpenClaw 安裝圖文教學 · ollama launch openclaw 一鍵安裝</title>
+<style>
+  /* 佈景以淺色系為主：單一淺色主題，不隨系統反轉 */
+  :root {
+    --paper: #F1F2EF;
+    --raised: #FBFCFA;
+    --ink: #191B1A;
+    --ink-soft: #4A514D;
+    --ink-faint: #7C837E;
+    --line: #DCDFD9;
+    --line-soft: #E7E9E4;
+    --teal: #0E7C7B;
+    --teal-deep: #0A5C5B;
+    --teal-wash: #E2EEED;
+    --amber: #C9820A;
+    --amber-bright: #E9A020;
+    --amber-wash: #F7EBD3;
+    --term-bg: #12211F;
+    --term-ink: #D9E6E2;
+    --good: #0E7C5A;
+    --good-wash: #E0F0E8;
+    --warn: #B4560A;
+    --warn-wash: #F8E6D2;
+    --blue: #1F6FA8;
+    --blue-wash: #E1EDF5;
+    --shadow: 0 1px 2px rgba(25, 27, 26, .05), 0 8px 22px -12px rgba(25, 27, 26, .18);
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, "Cascadia Mono", "Roboto Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  .page {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--teal-deep);
+    margin: 0 0 12px;
+  }
+
+  header.mast {
+    padding: 52px 0 26px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .brand svg {
+    width: 30px;
+    height: 30px;
+    color: var(--teal);
+  }
+
+  .brand b {
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+
+  .brand b span {
+    color: var(--teal);
+  }
+
+  h1 {
+    font-size: clamp(30px, 5.5vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    font-weight: 800;
+    margin: 18px 0 0;
+    text-wrap: balance;
+  }
+
+  .lead {
+    margin: 14px 0 0;
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 62ch;
+  }
+
+  .meta {
+    list-style: none;
+    padding: 0;
+    margin: 22px 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .meta li {
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 6px 11px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--raised);
+  }
+
+  .meta b {
+    color: var(--teal);
+  }
+
+  h2.part {
+    font-size: 13px;
+    font-family: var(--mono);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin: 64px 0 4px;
+    padding-top: 30px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  h2.part.first {
+    margin-top: 44px;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  h2.part .pn {
+    background: var(--teal);
+    color: var(--paper);
+    width: 52px;
+    height: 52px;
+    border-radius: 13px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.1;
+    box-shadow: 0 0 0 4px var(--teal-wash);
+    flex: none;
+  }
+
+  h2.part .pn small {
+    font-size: 9px;
+    font-weight: 400;
+    opacity: .85;
+    text-transform: uppercase;
+  }
+
+  h2.part.trouble {
+    color: var(--warn);
+  }
+
+  h2.part.trouble .pn {
+    background: var(--warn);
+    box-shadow: 0 0 0 4px var(--warn-wash);
+  }
+
+  .part-title {
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -.015em;
+    margin: 0 0 4px;
+    text-wrap: balance;
+  }
+
+  .part-sub {
+    color: var(--ink-soft);
+    margin: 0 0 22px;
+    font-size: 15px;
+  }
+
+  .block {
+    margin-top: 34px;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: var(--shadow);
+  }
+
+  .block h2.part {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  /* step */
+  .step {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 16px;
+    padding: 0 0 8px;
+  }
+
+  .stepnum {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--paper);
+    background: var(--teal);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  .stepbody {
+    border-bottom: 1px solid var(--line-soft);
+    padding-bottom: 20px;
+    margin-bottom: 4px;
+  }
+
+  .step:last-child .stepbody {
+    border-bottom: none;
+  }
+
+  .stepbody h3 {
+    margin: 4px 0 6px;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .stepbody p {
+    margin: 0 0 8px;
+    color: var(--ink-soft);
+    font-size: 14.5px;
+  }
+
+  .stepbody p:last-child {
+    margin-bottom: 0;
+  }
+
+  a.link {
+    color: var(--teal);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+    word-break: break-all;
+  }
+
+  /* terminal block（真的 shell 指令，維持深色，等同程式碼區塊） */
+  .term {
+    position: relative;
+    background: var(--term-bg);
+    border-radius: 11px;
+    padding: 14px 16px;
+    padding-top: 32px !important;
+    margin: 6px 0 10px;
+    overflow-x: auto;
+    box-shadow: var(--shadow);
+  }
+
+  .term::before {
+    position: absolute;
+    left: 16px;
+    top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    content: "電腦終端機輸入 ›" !important;
+    color: #A3D8F4 !important;
+  }
+
+  /* macOS Terminal */
+  .term.macos {
+    background: #1e2530 !important;
+    border: 1px solid #2a3545 !important;
+  }
+
+  .term.macos::before {
+    content: "終端機（macOS）輸入 ›" !important;
+    color: #A3D8F4 !important;
+  }
+
+  /* Windows PowerShell */
+  .term.windows {
+    background: #0c1a30 !important;
+    border: 1px solid #1a2f52 !important;
+  }
+
+  .term.windows::before {
+    content: "PowerShell（Windows）輸入 ›" !important;
+    color: #EBC17A !important;
+  }
+
+  /* Chat prompt inside term class */
+  .term.chat {
+    background: #112220 !important;
+    border: 1px solid #1d3b37 !important;
+  }
+
+  .term.chat::before {
+    content: "對 OpenClaw 助理說 ›" !important;
+    color: #6FBFA0 !important;
+  }
+
+  .term .dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .term .dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: block;
+  }
+
+  .term code {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--term-ink);
+    white-space: pre;
+    display: block;
+    line-height: 1.7;
+  }
+
+  .term .pr {
+    color: #6FBFA0;
+  }
+
+  .term .cm {
+    color: #EBC17A;
+  }
+
+  .term .ok {
+    color: #7FD1A8;
+  }
+
+  .term .cmt {
+    color: #8AA39B;
+  }
+
+  code.inline {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--line-soft);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .callout {
+    border-radius: 11px;
+    padding: 14px 16px;
+    margin: 6px 0 4px;
+    font-size: 14px;
+    display: flex;
+    gap: 11px;
+  }
+
+  .callout .ico {
+    flex: none;
+    font-family: var(--mono);
+    font-weight: 700;
+  }
+
+  .callout.tip {
+    background: var(--teal-wash);
+    border: 1px solid color-mix(in srgb, var(--teal) 26%, transparent);
+  }
+
+  .callout.tip .ico {
+    color: var(--teal-deep);
+  }
+
+  .callout.oneclick {
+    background: var(--amber-wash);
+    border: 1px solid color-mix(in srgb, var(--amber) 34%, transparent);
+  }
+
+  .callout.oneclick .ico {
+    color: var(--amber);
+  }
+
+  .callout.warn {
+    background: var(--warn-wash);
+    border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
+  }
+
+  .callout.warn .ico {
+    color: var(--warn);
+  }
+
+  .callout b {
+    color: var(--ink);
+  }
+
+  /* verify / success box */
+  .success {
+    background: var(--good-wash);
+    border: 1px solid color-mix(in srgb, var(--good) 34%, transparent);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 8px;
+  }
+
+  .success h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    color: var(--good);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .success ul {
+    margin: 0;
+    padding-left: 18px;
+    color: var(--ink-soft);
+    font-size: 14.5px;
+  }
+
+  .success li {
+    margin: 4px 0;
+  }
+
+  /* troubleshoot */
+  .tgrid {
+    display: grid;
+    gap: 12px;
+    margin-top: 8px;
+  }
+
+  .trow {
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 15px 17px;
+    box-shadow: var(--shadow);
+  }
+
+  .trow .sym {
+    font-weight: 700;
+    font-size: 15px;
+    margin: 0 0 4px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .trow .sym::before {
+    content: "✕";
+    color: var(--warn);
+    font-family: var(--mono);
+  }
+
+  .trow .fix {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  .trow .fix b {
+    color: var(--teal);
+  }
+
+  /* cheat sheet */
+  .cheat {
+    display: grid;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .cheatrow {
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 16px;
+    box-shadow: var(--shadow);
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .cheatrow code.inline {
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .cheatrow p {
+    margin: 0;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  @media (max-width:640px) {
+    .cheatrow {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (max-width:640px) {
+    .block {
+      padding: 18px 16px;
+    }
+
+    .step {
+      grid-template-columns: 34px 1fr;
+      gap: 11px;
+    }
+
+    .stepnum {
+      width: 30px;
+      height: 30px;
+      font-size: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion:reduce) {
+    * {
+      transition: none !important;
+    }
+  }
+
+  @media print {
+    :root {
+      --paper: #fff;
+      --raised: #fff;
+      --shadow: none;
+    }
+
+    .term,
+    .trow {
+      break-inside: avoid;
+    }
+
+    .wrap {
+      max-width: none;
+    }
+  }
+
+  /* Quiz Card CSS Styles */
+  .quiz-card {
+    background: var(--raised);
+    border: 2px solid var(--teal);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 32px 0;
+    box-shadow: var(--shadow);
+  }
+
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+  }
+
+  .quiz-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--teal-deep);
+    font-weight: 700;
+  }
+
+  .quiz-icon {
+    font-size: 22px;
+  }
+
+  .quiz-q {
+    margin-bottom: 24px;
+  }
+
+  .quiz-q:last-child {
+    margin-bottom: 16px;
+  }
+
+  .quiz-q-title {
+    font-weight: 700;
+    font-size: 15.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--ink);
+  }
+
+  .q-badge {
+    background: var(--teal-wash);
+    color: var(--teal-deep);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .quiz-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14.5px;
+    transition: all 0.2s ease;
+    color: var(--ink-soft);
+  }
+
+  .quiz-opt:hover {
+    background: var(--line-soft);
+    border-color: var(--ink-faint);
+  }
+
+  .quiz-opt input[type="radio"],
+  .quiz-opt input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--teal);
+  }
+
+  .quiz-opt.opt-correct {
+    background: #E2EEED !important;
+    border-color: #0E7C7B !important;
+    color: #0A5C5B !important;
+    font-weight: 600;
+  }
+
+  .quiz-opt.opt-incorrect {
+    background: #F8E6D2 !important;
+    border-color: #B4560A !important;
+    color: #8C3E05 !important;
+    font-weight: 600;
+  }
+
+  .quiz-feedback {
+    margin-top: 10px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .quiz-feedback.fb-correct {
+    background: #E2EEED;
+    border-left: 4px solid #0E7C7B;
+    color: #0A5C5B;
+  }
+
+  .quiz-feedback.fb-incorrect {
+    background: #F8E6D2;
+    border-left: 4px solid #B4560A;
+    color: #8C3E05;
+  }
+
+  .quiz-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .quiz-btn {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .quiz-btn.check-btn {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .quiz-btn.check-btn:hover {
+    background: var(--teal-deep);
+  }
+
+  .quiz-btn.submit-btn {
+    background: var(--amber);
+    color: #fff;
+  }
+
+  .quiz-btn.submit-btn:hover {
+    background: #A36908;
+  }
+
+  .quiz-status-msg {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  /* Modal styling for quiz submit */
+  .quiz-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(25, 27, 26, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .quiz-modal.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .quiz-modal-content {
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    max-width: 480px;
+    width: 100%;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+  }
+
+  .quiz-modal.active .quiz-modal-content {
+    transform: translateY(0);
+  }
+
+  .quiz-modal-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--teal-deep);
+  }
+
+  .quiz-modal-desc {
+    font-size: 15px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .quiz-json-box {
+    background: var(--term-bg);
+    color: var(--term-ink);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    max-height: 180px;
+    margin-bottom: 20px;
+    white-space: pre;
+    text-align: left;
+  }
+
+  .quiz-modal-btn {
+    background: var(--teal);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14.5px;
+    width: 100%;
+    transition: background 0.2s;
+  }
+
+  .quiz-modal-btn:hover {
+    background: var(--teal-deep);
+  }
+
+  .quiz-name-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 14.5px;
+    margin-bottom: 16px;
+    background: var(--raised);
+    color: var(--ink);
+    outline: none;
+  }
+
+  .quiz-name-input:focus {
+    border-color: var(--teal);
+  }
+
+  /* Quick Navigation Bar styles */
+  .quick-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+    padding: 12px 16px;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    list-style: none;
+    align-items: center;
+  }
+
+  .quick-nav-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--teal-deep);
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .quick-nav-item {
+    font-size: 13px;
+    font-family: var(--sans);
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--raised);
+    border: 1px solid var(--line-soft);
+    transition: all 0.2s ease;
+    font-weight: 600;
+  }
+
+  .quick-nav-item:hover {
+    background: var(--teal-wash);
+    border-color: var(--teal);
+    color: var(--teal-deep);
+  }
+
+  /* Legend styles */
+  .legend {
+    margin: 22px 0 6px;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .legend h2 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-family: var(--mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--teal-deep);
+  }
+
+  .legend ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+
+  .legend li {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 12px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    align-items: baseline;
+  }
+
+  @media (max-width: 640px) {
+    .legend li {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+  }
+
+  .legend .k {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .legend .k.k-say {
+    background: var(--term-bg);
+    color: var(--term-ink);
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .legend .k.see {
+    color: var(--teal-deep);
+  }
+
+  .legend .k.ok {
+    color: var(--teal-deep);
+  }
+</style>
+
+<div class="page">
+  <div class="wrap">
+
+    <header class="mast">
+      <p class="eyebrow">AI 召喚師：從使用 AI，到指揮 AI</p>
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+        <div class="brand" style="margin-bottom: 0;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v6" />
+            <path d="M12 9c-2 0-3 1-3.5 3l-1 5" />
+            <path d="M12 9c2 0 3 1 3.5 3l1 5" />
+            <path d="M12 9v6" />
+            <circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none" />
+          </svg>
+          <b>open<span>claw</span> · 環境建置與配置指南</b>
+        </div>
+        <a href="index.html" class="link"
+          style="font-family: var(--mono); font-size: 13px; font-weight: 600; text-transform: uppercase;">&larr; 回首頁</a>
+      </div>
+      <h1>用一行 <code style="font-size:.72em">ollama&nbsp;launch&nbsp;openclaw</code> 把助理裝起來</h1>
+      <p class="lead">跟著五個部分做：⓪ 檢查電腦準備好了沒 → ① 認識免費大腦 Ollama Cloud → ② 裝 Ollama、登入、一鍵啟動 OpenClaw → ③ 第一次動手做事 → ④
+        安裝後小抄。核心只有一行指令：裝好 Ollama 後執行 <code class="inline">ollama launch openclaw</code>，它會自動幫你裝好
+        OpenClaw、選模型、設定並啟動。每一步都寫了「你會看到什麼」，照著畫面對就對了，不用怕按錯。</p>
+      <ul class="meta">
+        <li>⏱ 約 <b>30–45</b> 分</li>
+        <li>💸 全程 <b>免費</b></li>
+        <li>💻 macOS / Windows 皆可</li>
+        <li>⚡ <b>一行指令</b>啟動</li>
+        <li>🔑 每人一個自己的帳號</li>
+      </ul>
+
+      <!-- Quick Navigation Index -->
+      <nav class="quick-nav">
+        <span class="quick-nav-title">📍 快速索引：</span>
+        <a href="#part-0" class="quick-nav-item">Part 0 檢查電腦</a>
+        <a href="#part-a" class="quick-nav-item">Part A 認識大腦</a>
+        <a href="#part-b" class="quick-nav-item">Part B 安裝與啟動</a>
+        <a href="#part-c" class="quick-nav-item">Part C 第一次動手</a>
+        <a href="#part-d" class="quick-nav-item">Part D 安裝後小抄</a>
+        <a href="#part-e" class="quick-nav-item">Part E 解除安裝</a>
+        <a href="#faq" class="quick-nav-item">💬 常見狀況與解法</a>
+      </nav>
+
+      <div class="legend">
+        <h2>怎麼讀每一步</h2>
+        <ul>
+          <li><span class="k k-say" style="width: 240px; color: #A3D8F4;">電腦終端機輸入 ›</span><span>要在電腦的終端機或 PowerShell 裡輸入並執行的指令（雙系統適用）。</span></li>
+          <li><span class="k k-say" style="width: 240px; color: #A3D8F4; background: #1e2530 !important;">終端機（macOS）輸入 ›</span><span>要在 macOS 的終端機（Terminal）裡輸入並執行的指令。</span></li>
+          <li><span class="k k-say" style="width: 240px; color: #EBC17A; background: #0c1a30 !important;">PowerShell（Windows）輸入 ›</span><span>要在 Windows 的 PowerShell 裡輸入並執行的指令。</span></li>
+          <li><span class="k k-say" style="width: 240px; color: #6FBFA0;">對 OpenClaw 助理說 ›</span><span>在聊天畫面中，直接對
+              OpenClaw 說的話。</span></li>
+          <li><span class="k see" style="width: 240px;">👀 你會看到</span><span>接下來終端機或畫面上，大概會出現的反應。</span></li>
+          <li><span class="k ok" style="width: 240px;">✅ 確認</span><span>怎麼判斷這一步真的成功了，再往下一步。</span></li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- ============ PART 0 ============ -->
+    <section class="block">
+      <h2 class="part first" id="part-0"><span class="pn"><small>Part</small>0</span>開始之前：檢查電腦準備好了沒</h2>
+      <p class="part-title">花 5 分鐘做一次體檢，之後就不會卡關</p>
+      <p class="part-sub">安裝前確認這幾件事，可以避免現場一半時間花在排錯。macOS 與 Windows 的步驟幾乎一樣，下面每個地方都會用「macOS：/ Windows：」分開標。</p>
+
+      <div class="step">
+        <div class="stepnum">1</div>
+        <div class="stepbody">
+          <h3>確認作業系統版本</h3>
+          <p><b>macOS：</b>點左上角 → 「關於這台 Mac」，確認版本在 <b>macOS 13 Ventura 以上</b>（14 Sonoma、15 Sequoia 更好）。</p>
+          <p><b>Windows：</b>按 <code class="inline">⊞ Win + R</code>，輸入 <code class="inline">winver</code> 按 Enter，確認是
+            <b>Windows 10 22H2 以上</b>或 <b>Windows 11</b>。
+          </p>
+          <div class="callout warn"><span class="ico">⚠</span>
+            <div>版本太舊（例如 Windows 10 舊版、macOS 12 以下）不是不能裝，但比較容易出問題，<b>建議先更新系統</b>再開始。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">2</div>
+        <div class="stepbody">
+          <h3>確認硬碟空間與網路</h3>
+          <p>建議至少 <b>2 GB</b> 可用空間，並確認能連上網路（Ollama 安裝檔與模型都要從網路下載）。</p>
+          <p>👀 <b>檢查可用空間：</b>macOS「關於這台 Mac → 儲存空間」；Windows「檔案總管 → 本機」右鍵「內容」看剩餘空間。</p>
+
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">3</div>
+        <div class="stepbody">
+          <h3>確認你有「安裝權限」</h3>
+          <p>安裝 Ollama 過程可能需要輸入<b>電腦的登入密碼</b>（管理員權限）。如果這台電腦是學校配發、你不是管理員帳號，安裝前請先跟資訊組或助教確認你能不能安裝軟體、或請他們先幫忙裝好 Ollama。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">4</div>
+        <div class="stepbody">
+          <h3>建議：另外開一個「一般使用者」帳號來做這次工作坊</h3>
+          <p>如果是<b>自己的電腦</b>，建議<b>另外新增一個一般使用者（非管理員）帳號</b>，工作坊期間都用這個帳號登入操作，不要直接用平常的管理員帳號。<b>macOS：</b>「系統設定 → 使用者與群組 →
+            新增使用者」，類型選<b>標準（Standard）</b>。<b>Windows：</b>「設定 → 帳戶 → 家庭與其他使用者 → 新增帳戶」，帳戶類型選<b>標準使用者</b>。</p>
+          <div class="callout tip"><span class="ico">🛡</span>
+            <div><b>為什麼這樣比較安全：</b>OpenClaw
+              之後會直接讀寫檔案、下指令，用一般帳號登入可以把它的活動範圍<b>限制在這個帳號自己的家目錄</b>裡，不容易誤動到系統設定或別的帳號的檔案，出問題也只要砍掉這個帳號重建就好，不會弄髒（污染）或弄壞整台電腦。<b>安裝當下需要輸入密碼的地方，直接輸入管理員帳號的密碼授權即可</b>（macOS/Windows
+              都允許用一般帳號登入、臨時用管理員密碼完成單次安裝），裝好之後平常使用完全不需要用到管理員帳號。</div>
+          </div>
+          <p>教室共用電腦通常本來就是用一般帳號登入（管理員密碼由資訊組保管），這一步可以直接跳過。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PART A ============ -->
+    <section class="block">
+      <h2 class="part" id="part-a"><span class="pn"><small>Part</small>A</span>認識免費大腦：Ollama Cloud</h2>
+      <p class="part-title">OpenClaw 需要一顆「大腦」，我們用 Ollama Cloud</p>
+      <p class="part-sub">OpenClaw 本身不含 AI 模型，需要接一個 LLM。我們用 <b>Ollama Cloud</b> 的免費方案——大模型跑在雲端，你的電腦<b>不用下載幾十 GB
+          的模型檔、也不需要高階顯示卡</b>。這一段先看懂它怎麼運作，實際安裝與登入在 Part B。</p>
+
+      <div class="step">
+        <div class="stepnum">1</div>
+        <div class="stepbody">
+          <h3>它是怎麼運作的</h3>
+          <p>等一下你會在自己電腦裝一個小小的 <b>Ollama</b> 程式，它負責當「橋樑」：把你在 OpenClaw 打的話送到 Ollama 的雲端伺服器上、由大模型運算，再把結果送回來。你只要用自己的
+            <b>Ollama
+              帳號登入一次</b>（Part B 會用 <code class="inline">ollama signin</code>
+            指令，開瀏覽器授權），就能免費用雲端模型，<b>不需要手動申請、複製貼上任何金鑰</b>。
+          </p>
+          <div class="callout tip"><span class="ico">ℹ</span>
+            <div>登入時如果還沒有 Ollama 帳號，授權頁面可以直接用 Email 或既有帳號<b>免費註冊</b>，<b>不需要信用卡</b>。建議用自己平常看得到的個人信箱，工作坊結束後用量紀錄都還找得到。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">2</div>
+        <div class="stepbody">
+          <h3>認識一下你的免費額度</h3>
+          <p>免費方案不是無限用：額度是用「跑模型所花的運算時間」計算，不是次數。session 額度<b>每 5 小時重置</b>、週額度<b>每 7
+              天重置</b>，同時間只能跑<b>一個</b>雲端模型。這對工作坊來說完全夠用——正常對話、寫個檔案、抓個網頁都不太會碰到上限，但選<b>特別巨大的模型</b>會比較快把額度用掉（Part B
+            選模型時會再提醒）。
+          </p>
+          <div class="callout tip"><span class="ico">💡</span>
+            <div>每位同學都用<b>自己的 Ollama 帳號</b>（而不是共用），額度各自獨立計算，不會因為隔壁同學狂發問而害你被限速。想查自己實際用量，登入後可到 <a class="link"
+                href="https://ollama.com/settings">ollama.com/settings</a> 頁面查看。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top:10px"><span class="ico">🔑</span>
+        <div><b>進階（選讀）：改用 API 金鑰。</b>大部分同學用 <code class="inline">ollama signin</code>
+          登入就好。若你想用「金鑰」的方式（例如之後要寫程式串接、或在無法開瀏覽器的環境），可登入 <a class="link"
+            href="https://ollama.com/settings/keys">ollama.com/settings/keys</a> 按 <b>Add API Key</b>
+          產生一把（畫面只顯示一次，複製後貼到安全的地方），再把它設成環境變數 <code class="inline">OLLAMA_API_KEY</code>。金鑰＝密碼，不要外流。</div>
+      </div>
+    </section>
+
+    <!-- ============ PART B ============ -->
+    <section class="block">
+      <h2 class="part" id="part-b"><span class="pn"><small>Part</small>B</span>裝 Ollama、登入、一鍵啟動 OpenClaw</h2>
+      <p class="part-title">核心就一行：<code class="inline">ollama launch openclaw</code></p>
+      <p class="part-sub">先裝好 Ollama、登入一次，再用一行指令讓 Ollama 自動把 OpenClaw 裝好並啟動。macOS 與 Windows 的差別只在「怎麼裝
+        Ollama」跟「終端機叫什麼名字」，下面都會分開標。</p>
+
+      <div class="callout tip"><span class="ico">📚</span>
+        <div><code class="inline">ollama launch openclaw</code> 是較新的指令，實際畫面文字可能隨版本略有不同，<b>照著它問的問題選就好</b>，並可對照本教學的畫面。可參考
+          Ollama 官方文件（<code class="inline">docs.ollama.com/integrations/openclaw</code>）。</div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">1</div>
+        <div class="stepbody">
+          <h3>安裝 Ollama</h3>
+          <p>請依你的系統至官網下載安裝包，或直接在終端機執行指令安裝：</p>
+          <div style="margin: 16px 0; padding-left: 4px;">
+            <!-- macOS Block -->
+            <div style="margin-bottom: 20px; padding-left: 14px; border-left: 4px solid var(--blue);">
+              <p style="font-weight: 700; color: var(--blue); margin: 0 0 6px; font-size: 15.5px;">🍎 macOS 安裝方式</p>
+              <p style="margin: 0 0 8px; font-size: 14.5px; color: var(--ink-soft);">
+                至官網下載並安裝 <a class="link" href="https://ollama.com/download">macOS .dmg 安裝檔</a>（雙擊打開並拖入「應用程式」資料夾）。
+              </p>
+              <p style="margin: 8px 0 6px; font-size: 14.5px; color: var(--ink-soft);">
+                或是使用終端機安裝：若尚未安裝 Homebrew，請先貼上下列指令安裝：
+              </p>
+              <div class="term macos" style="margin: 6px 0;"><code
+                  style="font-size: 11.5px; white-space: pre-wrap; word-break: break-all;"><span class="pr">$</span> <span class="cm">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span></code>
+              </div>
+              <p style="margin: 6px 0 8px; font-size: 13.5px; color: var(--ink-faint);">
+                <i>* 安裝完成後，請務必將目前的終端機視窗<b>關閉重新打開</b>，以利載入 brew 環境變數。</i>
+              </p>
+              <p style="margin: 8px 0 6px; font-size: 14.5px; color: var(--ink-soft);">
+                接著再執行以下指令安裝 Ollama：
+              </p>
+              <div class="term macos" style="margin: 6px 0;"><code
+                  style="font-size: 13.5px;"><span class="pr">$</span> <span class="cm">brew install --cask ollama</span></code>
+              </div>
+            </div>
+
+            <!-- Windows Block -->
+            <div style="margin-bottom: 12px; padding-left: 14px; border-left: 4px solid var(--amber);">
+              <p style="font-weight: 700; color: var(--amber); margin: 0 0 6px; font-size: 15.5px;">💻 Windows 安裝方式</p>
+              <p style="margin: 0 0 8px; font-size: 14.5px; color: var(--ink-soft);">
+                至官網下載並執行 <a class="link" href="https://ollama.com/download">Windows .exe 安裝檔</a>，或是直接在 PowerShell 執行：
+              </p>
+              <div class="term windows" style="margin: 6px 0;"><code
+                  style="font-size: 13.5px;"><span class="pr">PS&gt;</span> <span class="cm">winget install Ollama.Ollama</span></code>
+              </div>
+            </div>
+          </div>
+          <p><b>🚨 重要提醒：</b>安裝完成後（特別是使用終端機指令安裝者），請務必先<b>啟動 Ollama 應用程式</b>以開啟背景服務：
+          <ul style="margin: 4px 0 8px; padding-left: 20px; font-size: 14.5px; color: var(--ink-soft);">
+            <li><b>macOS：</b>請至「應用程式」資料夾雙擊打開 <b>Ollama</b>（首次開啟會問權限，請按同意）。</li>
+            <li><b>Windows：</b>請在開始功能表搜尋並開啟 <b>Ollama</b>，確認電腦右下角工作列/系統匣出現 Ollama 經典羊駝圖示。</li>
+          </ul>
+          </p>
+          <p>接著打開終端機驗證（macOS 用「終端機 / Terminal」；Windows 用「Windows Terminal」或「PowerShell」）：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">ollama --version</span>
+<span class="ok">ollama version is 0.x.x</span></code></div>
+          <p>看到版本號代表 Ollama 裝好了。若出現 <code class="inline">command not found</code> / <code
+              class="inline">not recognized</code>，把終端機<b>整個關掉、重新打開</b>再試一次（新裝好的指令要開新視窗才生效）。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">2</div>
+        <div class="stepbody">
+          <h3>登入你的 Ollama 帳號（解鎖免費雲端模型）</h3>
+          <p>在終端機輸入：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">ollama signin</span></code></div>
+          <p>👀 <b>你會看到：</b>它會自動打開瀏覽器（或印出一個網址請你自己貼到瀏覽器）到 Ollama 的授權頁面。<b>還沒有帳號的話，可以在這頁直接免費註冊</b>（Email
+            或既有帳號皆可，不需信用卡）。按頁面上的<b>同意 / 授權</b>把這台電腦跟你的帳號綁定，終端機就會顯示登入成功。</p>
+          <div class="callout tip"><span class="ico">ℹ</span>
+            <div>這一步就是 Part A 說的「登入一次」。之後這台電腦都記得你，不用每次重登。要換帳號或登出可用 <code class="inline">ollama signout</code>。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">3</div>
+        <div class="stepbody">
+          <h3>先確認電腦有 Node.js 與 Git</h3>
+          <p>下一步的 <code class="inline">ollama launch openclaw</code> 會用 <b>npm</b> 幫你自動安裝 OpenClaw（npm 來自
+            <b>Node.js</b>），且執行時需要 <b>Git</b>。若你的電腦尚未安裝，請依系統進行安裝：
+          </p>
+          <div style="margin: 16px 0; padding-left: 4px;">
+            <!-- macOS Block -->
+            <div style="margin-bottom: 20px; padding-left: 14px; border-left: 4px solid var(--blue);">
+              <p style="font-weight: 700; color: var(--blue); margin: 0 0 6px; font-size: 15.5px;">🍎 macOS 安裝方式</p>
+              <p style="margin: 0 0 8px; font-size: 14.5px; color: var(--ink-soft);">
+                通常已內建 Git。若尚未安裝 Node.js，可直接至 <a class="link" href="https://nodejs.org">nodejs.org</a> 下載安裝 LTS 版本安裝包。
+              </p>
+              <p style="margin: 8px 0 6px; font-size: 14.5px; color: var(--ink-soft);">
+                或是使用終端機安裝：若尚未安裝 Homebrew，請先貼上下列指令安裝：
+              </p>
+              <div class="term macos" style="margin: 6px 0;"><code
+                  style="font-size: 11.5px; white-space: pre-wrap; word-break: break-all;"><span class="pr">$</span> <span class="cm">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span></code>
+              </div>
+              <p style="margin: 6px 0 8px; font-size: 13.5px; color: var(--ink-faint);">
+                <i>* 安裝完成後，請務必將目前的終端機視窗<b>關閉重新打開</b>，以利載入 brew 環境變數。</i>
+              </p>
+              <p style="margin: 8px 0 6px; font-size: 14.5px; color: var(--ink-soft);">
+                接著再執行以下指令安裝 Node.js 與 Git：
+              </p>
+              <div class="term macos" style="margin: 6px 0;"><code
+                  style="font-size: 13.5px;"><span class="pr">$</span> <span class="cm">brew install node git</span></code>
+              </div>
+            </div>
+
+            <!-- Windows Block -->
+            <div style="margin-bottom: 12px; padding-left: 14px; border-left: 4px solid var(--amber);">
+              <p style="font-weight: 700; color: var(--amber); margin: 0 0 6px; font-size: 15.5px;">💻 Windows 安裝方式</p>
+              <p style="margin: 0 0 8px; font-size: 14.5px; color: var(--ink-soft);">
+                請在 PowerShell 貼上這兩行安裝，然後<b>把整個終端機關閉重新打開</b>：
+              </p>
+              <div class="term windows" style="margin: 6px 0;"><code
+                  style="font-size: 13.5px;"><span class="pr">PS&gt;</span> <span class="cm">winget install OpenJS.NodeJS.LTS</span><br><span class="pr">PS&gt;</span> <span class="cm">winget install Git.Git</span></code>
+              </div>
+              <p style="margin: 8px 0 0; font-size: 13.5px; color: var(--ink-faint);">
+                <i>（若無 winget，請手動下載安裝 <a class="link" href="https://nodejs.org">Node.js LTS</a> 與 <a class="link"
+                    href="https://git-scm.com/">Git</a> 安裝檔。）</i>
+              </p>
+            </div>
+          </div>
+          <p>不確定裝好沒？在終端機輸入 <code class="inline">node -v</code> 與 <code
+              class="inline">git --version</code>，若有正常顯示版本號即代表成功！
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">4</div>
+        <div class="stepbody">
+          <h3>一行指令啟動 OpenClaw</h3>
+          <p>在終端機輸入這行，按 Enter：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">ollama launch openclaw</span></code></div>
+          <p>👀 <b>你將會經歷的互動流程：</b></p>
+          <ul style="margin:0 0 8px;padding-left:20px;color:var(--ink-soft);font-size:14.5px;">
+            <li><b>安裝詢問：</b>會看到 <code class="inline">OpenClaw is not installed. Install with npm?</code>，選 <b>Yes</b> 按
+              Enter 開始下載安裝。</li>
+            <li><b>選擇模型：</b>跳出 <code class="inline">Select models for OpenClaw</code>，建議選擇雲端模型 <b><code
+                  class="inline">minimax-m3:cloud</code></b>（或帶有 <code class="inline">:cloud</code> 的其他雲端模型，如 <code
+                class="inline">kimi-k2.7-code:cloud</code>），按 Enter 確認。<br>
+              <i>* 註：若此時瀏覽器沒有登入 Ollama，系統會彈出瀏覽器並要求你登入授權。</i>
+            </li>
+            <li><b>安全性確認：</b>提示 <code
+                class="inline">OpenClaw can read files and run actions... I understand the risks. Continue?</code>，選
+              <b>Yes</b> 繼續。
+            </li>
+            <li><b>通訊頻道連結：</b>提示 <code class="inline">Connect a channel (messaging app) now?</code>，可先選 <b>Set up
+                later</b> 跳過。</li>
+            <li><b>啟動與畫面：</b>服務啟動後，會印出 <b>Web UI 連結</b>（例如 <code
+                class="inline">http://127.0.0.1:18789/#token=...</code>），並自動進入終端機的 <b>TUI（終端機聊天介面）</b>。此時畫面會顯示版本號 <code
+                class="inline">OpenClaw 2026.6.11 (e085fa1)</code>，看到 <code class="inline">Wake up, my friend!</code>
+              即代表成功！</li>
+          </ul>
+          <div class="callout warn"><span class="ico">⚠</span>
+            <div><b>選模型的小提醒：</b>免費額度是用<b>運算時間</b>算的，模型越大、回應越慢、越快把 5
+              小時額度用掉。挑一個<b>中小型</b>的雲端模型即可，日常對話、寫檔案、抓網頁綽綽有餘；避免一開始就挑最巨大的（例如 400B 以上）或帶 <code class="inline">preview</code>
+              字樣的。</div>
+          </div>
+          <div class="callout tip"><span class="ico">⚡</span>
+            <div><b>想更快、跳過選單？</b>可直接指定模型並自動同意：<code
+                class="inline">ollama launch openclaw --model kimi-k2.7-code:cloud --yes</code>。只想重新設定、先不啟動：<code
+                class="inline">ollama launch openclaw --config</code>。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top:10px"><span class="ico">🧩</span>
+        <div><b>進階（選讀）：不透過 Ollama、自己裝 OpenClaw。</b>你也可以用 <code
+            class="inline">curl -fsSL https://openclaw.ai/install.sh | bash</code>（或 <code
+            class="inline">npm i -g openclaw</code>）先裝好 OpenClaw，再執行 <code class="inline">openclaw</code>，在設定精靈裡選
+          <b>Ollama Cloud</b> 當 provider。用 <code class="inline">ollama launch openclaw</code>
+          的好處是上面這些它都幫你做掉了，新手建議直接走一行指令那條路。
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PART C ============ -->
+    <section class="block">
+      <h2 class="part" id="part-c"><span class="pn"><small>Part</small>C</span>第一次動手做事</h2>
+      <p class="part-title">叫醒你的 Agent</p>
+      <p class="part-sub">上一步 <code class="inline">ollama launch openclaw</code> 已經把你帶進 OpenClaw
+        聊天畫面了。這一段先認識「workspace」，再跑第一個任務確認它真的會動手做事。</p>
+
+      <div class="step">
+        <div class="stepnum">1</div>
+        <div class="stepbody">
+          <h3>認識「workspace」——Agent 的預設工作資料夾</h3>
+          <p>OpenClaw 的 Agent 有一個自己的 <b>workspace 工作資料夾</b>，預設固定在 <code
+              class="inline">~/.openclaw/workspace</code>——<b>跟你在終端機的哪個位置啟動 openclaw 無關</b>。你講的相對路徑（例如 <code
+              class="inline">openclaw-sample-data/...</code>）都會以這個資料夾為準。</p>
+          <p>為了讓 Agent 直接讀到後面課程的範例檔，請將您複製或下載下來的 <b><code class="inline">openclaw_workshop</code> 專案資料夾底下的 <code
+                class="inline">openclaw-sample-data</code></b> 複製進 workspace。請先在終端機切換（<code
+              class="inline">cd</code>）至該專案資料夾下，並依作業系統執行以下指令：</p>
+          <p><b>macOS（終端機）：</b></p>
+          <div class="term macos">
+            <code><span class="pr">$</span> <span class="cm">cp -R openclaw-sample-data ~/.openclaw/workspace/</span></code>
+          </div>
+          <p><b>Windows（PowerShell）：</b></p>
+          <div class="term windows">
+            <code><span class="pr">PS&gt;</span> <span class="cm">Copy-Item -Recurse openclaw-sample-data "$env:USERPROFILE\.openclaw\workspace\"</span></code>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">2</div>
+        <div class="stepbody">
+          <h3>跑第一個任務驗證</h3>
+          <p>對它輸入一句話，例如：</p>
+          <div class="term chat"><code><span class="pr">›</span> <span class="cm">在桌面建立一個 hello.txt，內容寫「OpenClaw 啟動成功！」</span>
+<span class="ok">✓ 已建立 ~/Desktop/hello.txt</span></code></div>
+          <p>去桌面看看 —— 如果檔案真的出現了，代表你的 Agent 已經會「動手做事」了。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">3</div>
+        <div class="stepbody">
+          <h3>如何完全關閉與停止它（非移除）</h3>
+          <p>若你想暫時釋放記憶體或完全關閉 AI 助理，請依序關閉 OpenClaw 與 Ollama：</p>
+          <p><b>1. 關閉 OpenClaw 聊天介面與背景服務：</b></p>
+          <ul style="margin:0 0 8px;padding-left:20px;color:var(--ink-soft);font-size:14.5px;">
+            <li>若是在還在執行的終端機畫面，可以<b>連按兩次 <code class="inline">Ctrl + C</code></b> 即可退出或強制中止執行。</li>
+            <li>由於 OpenClaw 有背景服務（Gateway）在運作，請在終端機輸入以下指令完全停止背景服務：</li>
+          </ul>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">openclaw gateway stop</span></code></div>
+          <div class="callout tip" style="margin-top: 6px;"><span class="ico">💡</span>
+            <div><b>Windows PowerShell 權限提示：</b>若執行上述指令出現「因為此系統上已停用指令碼執行」錯誤，請先在 PowerShell 執行：<code
+                class="inline">Set-ExecutionPolicy RemoteSigned -Scope CurrentUser</code>（輸入 <code
+                class="inline">Y</code> 確認），或直接改用 <code class="inline">npx openclaw gateway stop</code> 執行。</div>
+          </div>
+          <p><b>2. 完全結束 Ollama：</b></p>
+          <ul style="margin:0 0 8px;padding-left:20px;color:var(--ink-soft);font-size:14.5px;">
+            <li><b>macOS：</b>在螢幕右上方選單列（Menu Bar）找到 Ollama 圖示（一隻羊駝），點擊右鍵選 <b>Quit Ollama</b>。</li>
+            <li><b>Windows：</b>在工作列右下角系統匣（System Tray）找到 Ollama 圖示，點擊右鍵選 <b>Quit</b>。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">4</div>
+        <div class="stepbody">
+          <h3>下次怎麼再打開它</h3>
+          <p>之後不用每次都跑一整套安裝。你可以直接在終端機輸入以下指令來開啟網頁版介面（Dashboard）：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">openclaw dashboard</span></code></div>
+          <div class="callout tip" style="margin-top: 6px;"><span class="ico">💡</span>
+            <div><b>背景服務未啟動？</b>若此時背景服務尚未開啟，系統會自動詢問：<br>
+              <code
+                class="inline">Gateway is not running. Start it now so OpenClaw can open the dashboard? [Y/n]</code><br>
+              此時請輸入 <b>Y</b>（或直接按 Enter），系統便會自動幫你把背景服務啟動並開啟網頁。
+            </div>
+          </div>
+          <div class="callout tip" style="margin-top: 6px;"><span class="ico">💡</span>
+            <div><b>Windows 提示：</b>若出現停用指令碼錯誤，請改用 <code class="inline">npx openclaw dashboard</code>。</div>
+          </div>
+          <p><b>如果你想使用終端機畫面 (TUI) 聊天：</b></p>
+          <p>請直接輸入以下指令（在哪個目錄底下打都可以，Agent 的 workspace 不會變）：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">openclaw</span></code></div>
+          <p>若需要重新選模型或重跑設定，請執行 <code class="inline">ollama launch openclaw --config</code> 即可。</p>
+        </div>
+      </div>
+
+
+      <div class="success">
+        <h3>✓ 你完成了！確認這五件事都 OK：</h3>
+        <ul>
+          <li>終端機打 <code class="inline">ollama --version</code> 有版本號，且 <code class="inline">ollama signin</code> 已登入成功。
+          </li>
+          <li>安裝完成後，進入 TUI 聊天畫面或輸入 <code class="inline">openclaw --version</code> 確認版本號為 <code
+              class="inline">OpenClaw 2026.6.11 (e085fa1)</code>。</li>
+          <li>模型是一個 <code class="inline">:cloud</code> 雲端模型，沒有「未登入 / 未授權」訊息。</li>
+          <li>桌面出現了 <code class="inline">hello.txt</code>，打開內容正確。</li>
+          <li>範例素材 <code class="inline">openclaw-sample-data</code> 已經複製到 <code
+              class="inline">~/.openclaw/workspace/</code> 裡（Day 2 六個主題都靠它）。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ PART D ============ -->
+    <section class="block">
+      <h2 class="part" id="part-d"><span class="pn"><small>Part</small>D</span>安裝後小抄</h2>
+      <p class="part-title">常用指令 &amp; 設定放在哪裡</p>
+      <p class="part-sub">裝好之後不用整份教學重看一次，遇到下面這些狀況直接查這張小抄。</p>
+
+      <div class="cheat">
+        <div class="cheatrow">
+          <code class="inline">openclaw</code>
+          <p>啟動 Agent、進入聊天畫面。日常使用只需要這一行。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">openclaw --version</code>
+          <p>查看當前安裝的 OpenClaw 版本號與提交代碼資訊。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">openclaw gateway install / restart / stop / status</code>
+          <p>安裝、重新啟動、停止或查看 OpenClaw 背景服務（Gateway）的守護狀態。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">openclaw logs --follow</code>
+          <p>即時追蹤與觀察背景服務的運作日誌，可以用來排除連線與 API 錯誤。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">openclaw doctor</code>
+          <p>自動診斷系統狀態，稽核並修復背景服務的設定偏移。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">openclaw configure --section web</code>
+          <p>設定搜尋引擎（如 Brave API Key）以啟用網頁搜尋工具。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">openclaw skills</code>
+          <p>瀏覽與管理外掛技能（Skills），可用來擴充助理的實作能力。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">ollama launch openclaw</code>
+          <p>當初的一鍵安裝／啟動指令。裝過之後也可以再跑一次，它會沿用設定直接開起來。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">ollama launch openclaw --config</code>
+          <p>只重新設定（換模型、重選 provider）而不馬上啟動。想換一個雲端模型時用這個最快。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">ollama list</code>
+          <p>列出你電腦上／可用的模型；帶 <code class="inline">:cloud</code> 的是雲端模型。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">ollama signin</code> / <code class="inline">ollama signout</code>
+          <p>登入 / 登出 Ollama 帳號。換帳號、或這台電腦要交給別人時用得到。</p>
+        </div>
+        <div class="cheatrow">
+          <code class="inline">npm install -g openclaw@2026.6.11</code>
+          <p>手動安裝或指定更新至本教學指定的特定版本 <code class="inline">2026.6.11</code>。</p>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top:10px"><span class="ico">📁</span>
+        <div><b>設定存在哪？</b>安裝時終端機的訊息會顯示實際路徑（通常在你的使用者家目錄下、一個以 OpenClaw 命名的隱藏資料夾）。想重新設定模型，最簡單就是跑 <code
+            class="inline">ollama launch openclaw --config</code>，跟著畫面走一次；每個版本引導畫面用字可能不同，<b>照畫面問的做即可</b>。</div>
+      </div>
+
+      <div class="callout warn" style="margin-top:10px"><span class="ico">🔁</span>
+        <div><b>教室共用電腦、下一堂課要重來一次？</b>完整的解除安裝＋恢復乾淨步驟寫在下面 <b>Part E</b>。</div>
+      </div>
+    </section>
+
+    <!-- ============ PART E ============ -->
+    <section class="block">
+      <h2 class="part" id="part-e"><span class="pn"><small>Part</small>E</span>解除安裝 OpenClaw 與 Ollama</h2>
+      <p class="part-title">工作坊結束了？把電腦恢復原狀</p>
+      <p class="part-sub">不管是活動結束後不想繼續留著，還是教室共用電腦要交給下一堂課用，照著下面步驟就能乾淨移除，不會留下殘留檔案。</p>
+
+      <div class="step">
+        <div class="stepnum">1</div>
+        <div class="stepbody">
+          <h3>移除 OpenClaw 主程式</h3>
+          <p>OpenClaw 是 <code class="inline">ollama launch</code> 用 npm 幫你裝的，一行指令移除：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">npm uninstall -g openclaw</span></code>
+          </div>
+          <p>若當初是自己用 curl 一鍵安裝的（進階選讀那條路），先找出執行檔位置再刪：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">which openclaw</span>
+<span class="ok">/usr/local/bin/openclaw</span>
+<span class="pr">$</span> <span class="cm">rm "$(which openclaw)"</span></code></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">2</div>
+        <div class="stepbody">
+          <h3>移除設定資料夾</h3>
+          <p>光移除主程式還不夠——設定檔還留在使用者家目錄下的一個資料夾裡。如果安裝時終端機曾顯示過確切路徑，直接用那個路徑最準；不確定的話，用下面指令<b>先找出來看看</b>，確認真的是 OpenClaw
+            的資料夾後再刪除：
+          </p>
+          <p><b>macOS：</b></p>
+          <div class="term macos"><code><span class="pr">$</span> <span class="cm">find ~ -maxdepth 2 -iname "*openclaw*"</span>
+<span class="ok">/Users/yourname/.openclaw</span>
+<span class="pr">$</span> <span class="cm">rm -rf ~/.openclaw</span></code></div>
+          <p><b>Windows：</b>打開「檔案總管」，在網址列貼上 <code class="inline">%APPDATA%</code> 按 Enter，找到 <code
+              class="inline">openclaw</code> 資料夾，右鍵刪除。</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">3</div>
+        <div class="stepbody">
+          <h3>登出並移除 Ollama</h3>
+          <p>先從這台電腦登出你的 Ollama 帳號，避免下一個人用到你的免費額度：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">ollama signout</span></code></div>
+          <p>接著，將 Ollama 軟體從系統中完整移除：</p>
+          <ul style="margin: 4px 0 8px; padding-left: 20px; font-size: 14.5px; color: var(--ink-soft);">
+            <li><b>macOS：</b>請先在右上角選單列（Menu Bar）的 Ollama 圖示上點右鍵選擇 <b>Quit Ollama</b> 結束程式，再到「應用程式」資料夾將 <b>Ollama</b>
+              拖進垃圾桶移除。</li>
+            <li><b>Windows：</b>請先在右下角工作列系統匣的 Ollama 圖示上點右鍵選擇 <b>Quit</b> 結束程式，再到「設定 → 應用程式 → 安裝的應用程式」中搜尋 <b>Ollama</b>
+              並點選「解除安裝」。</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="stepnum">4</div>
+        <div class="stepbody">
+          <h3>驗證真的移除乾淨了</h3>
+          <p>打開一個<b>新的</b>終端機視窗（舊視窗可能還記得舊指令），輸入以下指令確認皆已移除：</p>
+          <div class="term"><code><span class="pr">$</span> <span class="cm">openclaw --version</span>
+<span class="ok">zsh: command not found: openclaw</span>
+<span class="pr">$</span> <span class="cm">ollama --version</span>
+<span class="ok">zsh: command not found: ollama</span></code></div>
+          <p>看到「command not found」（Windows 會顯示「不是內部或外部命令」之類的錯誤），就代表兩者都已移除乾淨。</p>
+        </div>
+      </div>
+
+      <div class="callout tip"><span class="ico">🔑</span>
+        <div><b>帳號還在雲端：</b>解除安裝不會刪除你的 Ollama 帳號——那是存在 Ollama 那邊的東西。<code class="inline">ollama signout</code>
+          只是讓這台電腦忘記你。若你當初有另外產生 API 金鑰（進階選讀），不用了可到 <a class="link"
+            href="https://ollama.com/settings/keys">ollama.com/settings/keys</a> 把它刪掉。</div>
+      </div>
+
+      <div class="success">
+        <h3>✓ 恢復乾淨了嗎？確認這幾件事：</h3>
+        <ul>
+          <li>終端機打 <code class="inline">openclaw --version</code> 顯示「找不到指令」。</li>
+          <li>使用者家目錄下的 OpenClaw 設定資料夾已經不見了。</li>
+          <li>已執行 <code class="inline">ollama signout</code> 且已移除 Ollama 軟體（終端機打 <code
+              class="inline">ollama --version</code> 顯示「找不到指令」）。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ Troubleshoot ============ -->
+    <section class="block">
+      <h2 class="part trouble" id="faq"><span class="pn"><small>FAQ</small>?</span>卡住了？常見狀況與解法</h2>
+      <p class="part-title">先看這裡，再舉手</p>
+      <div class="tgrid">
+        <div class="trow">
+          <p class="sym">command not found: ollama</p>
+          <p class="fix">Ollama 沒裝好，或裝完視窗沒重開。<b>關掉終端機、重新打開</b>再試一次；還是不行就回 <b>Part B 步驟 1</b> 重新下載安裝一次。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">ollama launch：unknown command / 沒有這個指令</p>
+          <p class="fix"><code class="inline">launch</code> 是較新版本才有的指令。回 <a class="link"
+              href="https://ollama.com/download">ollama.com/download</a> 下載<b>最新版</b>覆蓋安裝，重開終端機再試。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">command not found: openclaw</p>
+          <p class="fix">通常是 <code class="inline">ollama launch openclaw</code> 還沒跑完、或視窗沒重開。<b>關掉終端機、重新打開</b>，再跑一次 <code
+              class="inline">ollama launch openclaw</code>。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">出現「Hi, I'm Crestodian」且無法執行一般指令 / 顯示 Gateway not reachable</p>
+          <p class="fix">這代表 OpenClaw 的背景服務（Gateway）沒有正常啟動或連線中斷。請在終端機執行 <code
+              class="inline">openclaw gateway restart</code>（若 Windows 遇到執行權限阻擋，請改用 <code
+              class="inline">npx openclaw gateway restart</code>）來重新啟動背景服務；若依然不行，可執行 <code
+              class="inline">openclaw doctor</code> 診斷系統狀態，或用 <code class="inline">openclaw logs --follow</code> 查看錯誤日誌。
+          </p>
+        </div>
+        <div class="trow">
+          <p class="sym">網頁 Web UI 畫面出現「需要驗證」（要求輸入權杖 Token 或密碼）</p>
+          <p class="fix">這是因為開網頁時網址沒有帶上 Token。請在終端機執行 <code class="inline">openclaw dashboard</code>（或 Windows 用 <code
+              class="inline">npx openclaw dashboard</code>），這會自動開啟帶有正確權杖 Token 的瀏覽器分頁。或者執行 <code
+              class="inline">openclaw dashboard --no-open</code> 取得 Token 後自行複製貼上。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">launch 時說找不到 npm / node</p>
+          <p class="fix"><code class="inline">ollama launch</code> 要用 npm 裝 OpenClaw。<b>Windows</b> 回 <b>Part B 步驟 3</b>
+            裝
+            Node.js 並重開視窗；<b>macOS</b> 執行 <code class="inline">brew install node</code> 或到 <a class="link"
+              href="https://nodejs.org">nodejs.org</a> 下載安裝。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">launch 時出現 Error: OpenClaw is not installed and required dependencies are missing (git)</p>
+          <p class="fix">這代表系統中缺少 <b>Git</b>。<b>Windows</b> 請用 PowerShell 執行 <code
+              class="inline">winget install Git.Git</code> 安裝（或到 <a class="link"
+              href="https://git-scm.com/">git-scm.com</a> 下載），安裝後<b>一定要重開終端機</b>再試一次。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">未登入 / 401 / unauthorized（用不了雲端模型）</p>
+          <p class="fix">還沒登入 Ollama 帳號。執行 <code class="inline">ollama signin</code>，在跳出的瀏覽器頁面按<b>同意 /
+              授權</b>，回終端機看到登入成功再重跑 <code class="inline">ollama launch openclaw</code>。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">permission denied（權限不足）</p>
+          <p class="fix">安裝 Ollama 需要電腦權限。<b>依提示輸入你的電腦登入密碼</b>（打字時看不到是正常的），按 Enter。學校電腦不是管理員的話，請助教／資訊組幫忙。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">下載很慢 / 卡住不動</p>
+          <p class="fix">先確認<b>有連上教室網路</b>（Ollama 安裝檔、模型、OpenClaw 都要下載）。等 5 分鐘仍無反應，按 <code
+              class="inline">Ctrl + C</code>
+            中斷，重跑一次。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">額度用完 / rate limit（Ollama Cloud）</p>
+          <p class="fix">Ollama Cloud 免費額度以運算時間計算，session 每 5 小時、週額度每 7 天重置。<b>稍等重置再試</b>，或用 <code
+              class="inline">ollama launch openclaw --config</code> 換一個較小的模型。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">PowerShell：「因為在此系統上已停用指令碼執行」</p>
+          <p class="fix">這是 Windows 預設的安全政策擋住腳本執行。<b>不需要管理員權限</b>，直接在現有的 PowerShell 視窗輸入 <code
+              class="inline">Set-ExecutionPolicy RemoteSigned -Scope CurrentUser</code>，按 Enter 後輸入 <code
+              class="inline">Y</code> 確認，就可以順利執行 <code class="inline">npm</code> 或 <code class="inline">openclaw</code>
+            指令了。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">macOS：「無法打開，因為它來自身分不明的開發者」</p>
+          <p class="fix">這是 Gatekeeper 安全檢查，安裝 Ollama app 時可能出現。到「系統設定 → 隱私權與安全性」，捲到底部會看到一則允許打開此 App
+            的提示，點<b>仍要打開</b>即可，只需做一次。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">Windows：SmartScreen「Windows 已保護您的電腦」</p>
+          <p class="fix">下載安裝檔（Ollama、Node.js）第一次執行常見。點畫面上<b>其他資訊</b>，再點<b>仍要執行</b>即可繼續安裝。</p>
+        </div>
+        <div class="trow">
+          <p class="sym">學校網路 / VPN 擋住連線</p>
+          <p class="fix">若下載或安裝一直卡在同個地方，可能是校網防火牆擋了特定網域。回頭看 <b>Part 0 步驟 2</b> 列出的網域清單，請資訊組確認是否開通；也可以先換成手機熱點測試看看是不是網路問題。
+          </p>
+        </div>
+        <div class="trow">
+          <p class="sym">硬碟空間不足（no space left on device）</p>
+          <p class="fix">清一下下載資料夾、資源回收桶／垃圾桶再重試。雲端模型不佔你的硬碟，主要是 Ollama app 與 OpenClaw 本身需要一點空間。</p>
+        </div>
+      </div>
+
+      <div class="callout tip" style="margin-top:22px"><span class="ico">🔒</span>
+        <div><b>最後提醒：</b>你的 Ollama 帳號登入狀態只存在自己的電腦裡，不要把帳號密碼或 API 金鑰外流、共用。教室共用電腦用完後，記得執行 <code
+            class="inline">ollama signout</code> 登出（詳見 Part E）。</div>
+      </div>
+    </section>
+
+    <!-- ===== Quiz Card ===== -->
+    <div class="quiz-card" data-quiz-id="install_guide">
+      <div class="quiz-header">
+        <span class="quiz-icon">🧠</span>
+        <h3>起跑準備隨堂抽考</h3>
+      </div>
+      <div class="quiz-body">
+        <!-- Question 1 -->
+        <div class="quiz-q" data-q-idx="0">
+          <div class="quiz-q-title"><span class="q-badge">Q1</span> OpenClaw 的預設工作路徑（workspace）位置在哪裡？</div>
+          <div class="quiz-options">
+            <label class="quiz-opt">
+              <input type="radio" name="q_install_0" value="0">
+              <span class="opt-text">目前打開終端機的資料夾</span>
+            </label>
+            <label class="quiz-opt">
+              <input type="radio" name="q_install_0" value="1">
+              <span class="opt-text">家目錄底下的 <code>~/.openclaw/workspace</code></span>
+            </label>
+            <label class="quiz-opt">
+              <input type="radio" name="q_install_0" value="2">
+              <span class="opt-text">桌面上的 <code>Desktop/openclaw_workshop</code></span>
+            </label>
+            <label class="quiz-opt">
+              <input type="radio" name="q_install_0" value="3">
+              <span class="opt-text">電腦的 <code>C:\Program Files</code> 或 <code>/usr/local/bin</code></span>
+            </label>
+          </div>
+          <div class="quiz-feedback" style="display: none;"
+            data-exp="OpenClaw 的工作區（workspace）是固定在家目錄下的 <code>~/.openclaw/workspace</code>，不論你在何處啟動它，Agent 對於相對路徑的讀寫都會以這裡為基準。">
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="quiz-q" data-q-idx="1">
+          <div class="quiz-q-title"><span class="q-badge">Q2</span> 使用 <code>ollama launch openclaw</code>
+            啟動時，若要加快速度並跳過互動選單，可以使用哪一個參數？</div>
+          <div class="quiz-options">
+            <label class="quiz-opt">
+              <input type="radio" name="q_install_1" value="0">
+              <span class="opt-text"><code>--fast</code></span>
+            </label>
+            <label class="quiz-opt">
+              <input type="radio" name="q_install_1" value="1">
+              <span class="opt-text"><code>--model &lt;模型名稱&gt; --yes</code></span>
+            </label>
+            <label class="quiz-opt">
+              <input type="radio" name="q_install_1" value="2">
+              <span class="opt-text"><code>--skip-menu</code></span>
+            </label>
+          </div>
+          <div class="quiz-feedback" style="display: none;"
+            data-exp="使用 <code>--model &lt;模型名稱&gt; --yes</code> 參數可以直接指定模型並同意所有安全性條款，完全免去點選互動選單的步驟！"></div>
+        </div>
+      </div>
+      <div class="quiz-footer">
+        <button class="quiz-btn check-btn" onclick="checkQuiz('install_guide')">檢查答案</button>
+        <button class="quiz-btn submit-btn" onclick="submitQuiz('install_guide')" style="display: none;">送出成績</button>
+        <div class="quiz-status-msg"></div>
+      </div>
+    </div>
+
+    <footer>
+      <span>講師：吳政隆教授 · 主辦：<a class="link" href="https://bigdata.scu.edu.tw">東吳大學資料科學系</a> · <a class="link"
+          href="https://nlp.bigdata.scu.edu.tw">東吳大學自然語言處理實驗室</a></span>
+      <span>OLLAMA LAUNCH · 一行指令 · Ollama Cloud 免費模型 · v8</span>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Inject copy button styles
+    const style = document.createElement("style");
+    style.textContent = `
+      .copy-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.85);
+        border-radius: 6px;
+        padding: 5px;
+        cursor: pointer;
+        opacity: 0.65;
+        transition: opacity 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
+        user-select: none;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .copy-btn:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+      }
+      .copy-btn.copied {
+        opacity: 1;
+        background: #0E7C5A !important;
+        border-color: #0E7C5A !important;
+        color: #fff !important;
+      }
+      @media (prefers-color-scheme: light) {
+        .say .copy-btn {
+          background: rgba(0, 0, 0, 0.05);
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          color: rgba(0, 0, 0, 0.6);
+        }
+        .say .copy-btn:hover {
+          background: rgba(0, 0, 0, 0.12);
+          color: #000;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Select all code blocks (.term and .say)
+    const blocks = document.querySelectorAll(".term, .say");
+
+    blocks.forEach(block => {
+      // Ensure relative positioning
+      block.style.position = "relative";
+
+      const button = document.createElement("button");
+      button.className = "copy-btn";
+      button.type = "button";
+      button.title = "複製內容";
+      button.innerHTML = `
+        <svg class="copy-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <svg class="check-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      `;
+
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        let textToCopy = "";
+        if (block.classList.contains("term")) {
+          const cmElements = block.querySelectorAll(".cm");
+          if (cmElements.length > 0) {
+            textToCopy = Array.from(cmElements).map(el => el.innerText).join("\n");
+          } else {
+            textToCopy = block.innerText
+              .split('\n')
+              .map(line => line.replace(/^(\$\s*|PS>\s*|PS&gt;\s*|›\s*|\>\s*)/gi, ""))
+              .join('\n');
+          }
+        } else {
+          textToCopy = block.innerText;
+        }
+
+        textToCopy = textToCopy.trim();
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          const copySvg = button.querySelector(".copy-svg");
+          const checkSvg = button.querySelector(".check-svg");
+          copySvg.style.display = "none";
+          checkSvg.style.display = "block";
+          button.classList.add("copied");
+
+          setTimeout(() => {
+            copySvg.style.display = "block";
+            checkSvg.style.display = "none";
+            button.classList.remove("copied");
+          }, 2000);
+        }).catch(err => {
+          console.error("Failed to copy:", err);
+        });
+      });
+
+      block.appendChild(button);
+    });
+  });
+</script>
+
+<!-- Universal Quiz Controller Script -->
+<script>
+  (function () {
+    const DEFAULT_SURVEY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwA2O384aMgbu_1T0scyw4BKGoKPNjQ8S2QP6clzyFtRxpoeo_Kr_P-sE4i9s45rPnB9g/exec';
+    const urlParams = new URLSearchParams(window.location.search);
+    const SURVEY_ENDPOINT = urlParams.get('endpoint') || DEFAULT_SURVEY_ENDPOINT;
+
+    const QUIZ_ANSWERS = {
+      'install_guide': [1, 1],
+      'day1_afternoon_warmup': [1, 1],
+      'day1_afternoon_prompt': [0, 1],
+      'day1_afternoon_debugging': [1, 2],
+      'day1_afternoon_challenge': [0],
+      'day2_theme1': [0, 1],
+      'day2_theme2': [0, 1],
+      'day2_theme3': [0, 0],
+      'day2_theme4': [0, 0],
+      'day2_theme5': [0, 0],
+      'day2_theme6': [0, 0],
+      'day2_adv_topic1': [0, 0],
+      'day2_adv_topic2': [0, 0],
+      'day2_adv_topic3': [0, 0]
+    };
+
+    window.checkQuiz = function (quizId) {
+      const card = document.querySelector(`.quiz-card[data-quiz-id="${quizId}"]`);
+      if (!card) return;
+
+      const correctAns = QUIZ_ANSWERS[quizId];
+      if (!correctAns) return;
+
+      let allAnswered = true;
+      let score = 0;
+      const studentAnswers = [];
+
+      const qDivs = card.querySelectorAll('.quiz-q');
+      qDivs.forEach((qDiv, qIdx) => {
+        const selectedOpt = qDiv.querySelector('input[type="radio"]:checked');
+        if (!selectedOpt) {
+          allAnswered = false;
+          return;
+        }
+
+        const chosenVal = parseInt(selectedOpt.value, 10);
+        studentAnswers.push(chosenVal);
+        const isCorrect = (chosenVal === correctAns[qIdx]);
+        if (isCorrect) score++;
+
+        const optLabels = qDiv.querySelectorAll('.quiz-opt');
+        optLabels.forEach((label, optIdx) => {
+          label.classList.remove('opt-correct', 'opt-incorrect');
+          if (optIdx === correctAns[qIdx]) {
+            label.classList.add('opt-correct');
+          } else if (optIdx === chosenVal) {
+            label.classList.add('opt-incorrect');
+          }
+        });
+
+        const feedbackBlock = qDiv.querySelector('.quiz-feedback');
+        if (feedbackBlock) {
+          feedbackBlock.style.display = 'block';
+          feedbackBlock.className = `quiz-feedback ${isCorrect ? 'fb-correct' : 'fb-incorrect'}`;
+          const prefix = isCorrect ? '🎉 答對了！' : '❌ 答錯囉，再想想看！';
+          const expText = feedbackBlock.getAttribute('data-exp') || '';
+          feedbackBlock.innerHTML = `<strong>${prefix}</strong> ${expText}`;
+        }
+      });
+
+      if (!allAnswered) {
+        alert('請先答完所有題目再進行檢查！');
+        return;
+      }
+
+      const submitBtn = card.querySelector('.submit-btn');
+      if (submitBtn) {
+        submitBtn.style.display = 'inline-block';
+      }
+
+      const statusMsg = card.querySelector('.quiz-status-msg');
+      if (statusMsg) {
+        statusMsg.textContent = `檢查完成！您的得分：${score} / ${correctAns.length}`;
+      }
+
+      card.setAttribute('data-score', score);
+      card.setAttribute('data-answers', JSON.stringify(studentAnswers));
+    };
+
+    window.submitQuiz = function (quizId) {
+      const card = document.querySelector(`.quiz-card[data-quiz-id="${quizId}"]`);
+      if (!card) return;
+
+      const score = card.getAttribute('data-score');
+      const answers = card.getAttribute('data-answers');
+      if (score === null || answers === null) {
+        alert('請先完成檢查答案後再送出成績！');
+        return;
+      }
+
+      let studentName = localStorage.getItem('openclaw_student_name') || '';
+      showQuizModal(quizId, score, answers, studentName);
+    };
+
+    function showQuizModal(quizId, score, answers, studentName) {
+      let modal = document.getElementById('quizResultModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'quizResultModal';
+        modal.className = 'quiz-modal';
+        modal.innerHTML = `
+        <div class="quiz-modal-content">
+          <div class="quiz-modal-title">📝 送出測驗成績</div>
+          <div class="quiz-modal-desc" id="quizModalDesc">請輸入您的姓名或暱稱，以將本次測驗成績送出存檔：</div>
+          <input type="text" id="quizStudentName" class="quiz-name-input" placeholder="例如：王小明">
+          <div class="quiz-json-box" id="quizJsonDisplay" style="display:none;"></div>
+          <button class="quiz-modal-btn" id="quizModalSubmitBtn">確認送出</button>
+          <button class="quiz-modal-btn" id="quizModalCloseBtn" style="background:#7C837E; margin-top:8px;">關閉</button>
+        </div>
+      `;
+        document.body.appendChild(modal);
+
+        document.getElementById('quizModalCloseBtn').onclick = function () {
+          modal.classList.remove('active');
+        };
+      }
+
+      const nameInput = document.getElementById('quizStudentName');
+      nameInput.value = studentName;
+      nameInput.style.display = 'block';
+
+      const descText = document.getElementById('quizModalDesc');
+      descText.innerHTML = `請輸入您的姓名或暱稱，以將本次測驗成績（單元：<code>${quizId}</code>，得分：<code>${score}</code>）送出存檔：`;
+
+      const jsonBox = document.getElementById('quizJsonDisplay');
+      jsonBox.style.display = 'none';
+
+      const submitBtn = document.getElementById('quizModalSubmitBtn');
+      submitBtn.style.display = 'block';
+      submitBtn.onclick = function () {
+        const enteredName = nameInput.value.trim();
+        if (!enteredName) {
+          alert('請輸入姓名或暱稱！');
+          return;
+        }
+        localStorage.setItem('openclaw_student_name', enteredName);
+
+        const payload = {
+          student_name: enteredName,
+          quiz_id: quizId,
+          score: parseInt(score, 10),
+          answers: JSON.parse(answers),
+          survey_type: `quiz_${quizId}`,
+          timestamp: new Date().toISOString()
+        };
+
+        if (SURVEY_ENDPOINT && SURVEY_ENDPOINT !== 'https://script.google.com/macros/s/AKfycbwA2O384aMgbu_1T0scyw4BKGoKPNjQ8S2QP6clzyFtRxpoeo_Kr_P-sE4i9s45rPnB9g/exec') {
+          const searchParams = new URLSearchParams();
+          searchParams.append('payload', JSON.stringify(payload));
+
+          descText.innerHTML = `正在送出成績...`;
+          submitBtn.style.display = 'none';
+          nameInput.style.display = 'none';
+
+          fetch(SURVEY_ENDPOINT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: searchParams
+          })
+            .then(() => {
+              descText.innerHTML = `🎉 成績上傳成功！感謝您的參與。`;
+            })
+            .catch(err => {
+              console.error('Quiz submit error:', err);
+              descText.innerHTML = `💡 上傳發生錯誤，以下為您的測驗 JSON 資料，您可以複製給助教：`;
+              jsonBox.style.display = 'block';
+              jsonBox.textContent = JSON.stringify(payload, null, 2);
+            });
+        } else {
+          descText.innerHTML = `💡 <b>提示</b>：後端接收端點（SURVEY_ENDPOINT）為預設值或未設定。<br>在本機開發模式下，以下是打包好的作答 JSON 數據：`;
+          nameInput.style.display = 'none';
+          submitBtn.style.display = 'none';
+          jsonBox.style.display = 'block';
+          jsonBox.textContent = JSON.stringify(payload, null, 2);
+        }
+      };
+
+      modal.classList.add('active');
+    }
+  })();
+</script>

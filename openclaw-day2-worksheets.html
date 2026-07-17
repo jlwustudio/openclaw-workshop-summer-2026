@@ -1,0 +1,2554 @@
+<meta charset="utf-8">
+<title>OpenClaw Day 2 · 實作講義 + 進階挑戰卡（逐步操作版）</title>
+<style>
+  /* 佈景以淺色系為主：單一淺色主題，不隨系統反轉 */
+  :root {
+    --paper: #F1F2EF;
+    --raised: #FBFCFA;
+    --ink: #191B1A;
+    --ink-soft: #4A514D;
+    --ink-faint: #7C837E;
+    --line: #DCDFD9;
+    --line-soft: #E7E9E4;
+    --teal: #0E7C7B;
+    --teal-deep: #0A5C5B;
+    --teal-wash: #E2EEED;
+    --amber: #C9820A;
+    --amber-bright: #E9A020;
+    --amber-wash: #F7EBD3;
+    --term-bg: #12211F;
+    --term-ink: #D9E6E2;
+    --shadow: 0 1px 2px rgba(25, 27, 26, .05), 0 8px 22px -12px rgba(25, 27, 26, .18);
+    --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, "Cascadia Mono", "Roboto Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  .page {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+  }
+
+  .wrap {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  header.mast {
+    padding: 52px 0 24px;
+    border-bottom: 2px solid var(--ink);
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--teal-deep);
+    margin: 0 0 12px;
+  }
+
+  .backlink {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--teal-deep);
+    border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+    text-transform: uppercase;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+  }
+
+  .brand svg {
+    width: 30px;
+    height: 30px;
+    color: var(--teal);
+  }
+
+  .brand b {
+    font-family: var(--mono);
+    font-size: 14px;
+  }
+
+  .brand b span {
+    color: var(--teal);
+  }
+
+  h1 {
+    font-size: clamp(30px, 5.5vw, 46px);
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    font-weight: 800;
+    margin: 18px 0 0;
+    text-wrap: balance;
+  }
+
+  .lead {
+    margin: 14px 0 0;
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 66ch;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .chip.base {
+    background: var(--teal-wash);
+    color: var(--teal-deep);
+  }
+
+  .chip.adv {
+    background: var(--amber-wash);
+    color: var(--amber);
+  }
+
+  /* how-to-read legend */
+  .legend {
+    margin: 22px 0 6px;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .legend h2 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-family: var(--mono);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--teal-deep);
+  }
+
+  .legend ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 8px;
+  }
+
+  .legend li {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 12px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    align-items: baseline;
+  }
+
+  .legend .k {
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .legend .k.k-say {
+    background: var(--term-bg);
+    color: var(--term-ink);
+    padding: 2px 8px;
+    border-radius: 5px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .legend .k.see {
+    color: var(--teal-deep);
+  }
+
+  .legend .k.ok {
+    color: var(--teal-deep);
+  }
+
+  /* theme block */
+  .theme {
+    margin-top: 34px;
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: var(--shadow);
+  }
+
+  .thead {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    border-bottom: 1px solid var(--line-soft);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+  }
+
+  .tno {
+    flex: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 13px;
+    background: var(--teal);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+  }
+
+  .tno small {
+    font-size: 9px;
+    font-weight: 400;
+    opacity: .85;
+  }
+
+  .thead .tt {
+    flex: 1;
+  }
+
+  .thead h2 {
+    margin: 0;
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: -.01em;
+  }
+
+  .thead .goal {
+    margin: 5px 0 0;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+  }
+
+  .thead .time {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--amber);
+    white-space: nowrap;
+    margin-top: 4px;
+    display: inline-block;
+  }
+
+  .prep {
+    background: var(--teal-wash);
+    border: 1px solid color-mix(in srgb, var(--teal) 22%, transparent);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-size: 13.5px;
+    color: var(--ink);
+    margin: 0 0 18px;
+  }
+
+  .prep b {
+    color: var(--teal-deep);
+  }
+
+  .seclabel {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--teal-deep);
+  }
+
+  .tasktitle {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 10px;
+  }
+
+  /* walkthrough */
+  .walk {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 4px;
+    display: grid;
+    gap: 16px;
+  }
+
+  .walk>li {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .wn {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--teal);
+    color: #fff;
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 2px;
+  }
+
+  /* ================= Unified Terminal & Dialogue Block Styles ================= */
+  /* 1. Terminal Block base style (維持深色，等同程式碼區塊) */
+  .term {
+    position: relative;
+    background: #1c1c1c;
+    /* Default common dark charcoal */
+    border: 1px solid #2d2d2d;
+    border-radius: 11px;
+    padding: 14px 16px;
+    margin: 6px 0 10px;
+    overflow-x: auto;
+    box-shadow: var(--shadow);
+  }
+
+  .term.labeled {
+    padding-top: 32px;
+  }
+
+  .term.labeled::before,
+  .term::before {
+    position: absolute;
+    left: 16px;
+    top: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+
+  /* macOS Terminal */
+  .term.macos {
+    background: #1e2530 !important;
+    border: 1px solid #2a3545 !important;
+  }
+
+  .term.macos::before {
+    content: "終端機（macOS）輸入 ›" !important;
+    color: #A3D8F4 !important;
+  }
+
+  /* Windows PowerShell */
+  .term.windows {
+    background: #0c1a30 !important;
+    border: 1px solid #1a2f52 !important;
+  }
+
+  .term.windows::before {
+    content: "PowerShell（Windows）輸入 ›" !important;
+    color: #EBC17A !important;
+  }
+
+  /* Common Terminal */
+  .term.common {
+    background: #1c1c1c !important;
+    border: 1px solid #2d2d2d !important;
+  }
+
+  .term.common::before {
+    content: "電腦終端機（macOS / Windows）輸入 ›" !important;
+    color: #A3D8F4 !important;
+  }
+
+  /* Chat prompt inside term class */
+  .term.chat {
+    background: #112220 !important;
+    border: 1px solid #1d3b37 !important;
+  }
+
+  .term.chat::before {
+    content: "對 OpenClaw 助理說 ›" !important;
+    color: #6FBFA0 !important;
+  }
+
+  /* Code elements inside term */
+  .term code {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--term-ink);
+    white-space: pre;
+    display: block;
+    line-height: 1.7;
+  }
+
+  .term .pr {
+    color: #6FBFA0;
+  }
+
+  .term .cm {
+    color: #EBC17A;
+  }
+
+  .term .ok {
+    color: #7FD1A8;
+  }
+
+  .term .cmt {
+    color: #8AA39B;
+  }
+
+  /* 2. Dialogue / Chat Block (對話區塊，與終端機區分) */
+  .say {
+    background: #112220;
+    /* Default chat dark teal */
+    border: 1px solid #1d3b37;
+    border-radius: 9px;
+    padding: 32px 13px 9px 13px;
+    position: relative;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--term-ink);
+    line-height: 1.55;
+    overflow-wrap: break-word;
+  }
+
+  .say::before {
+    content: "對 OpenClaw 助理說 ›";
+    position: absolute;
+    left: 13px;
+    top: 10px;
+    color: #6FBFA0;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: .02em;
+    writing-mode: horizontal-tb;
+    display: block;
+  }
+
+  /* Dialogue variations */
+  .say.terminal {
+    background: #1c1c1c !important;
+    border: 1px solid #2d2d2d !important;
+  }
+
+  .say.terminal::before {
+    content: "電腦終端機（macOS / Windows）輸入 ›" !important;
+    color: #A3D8F4 !important;
+  }
+
+  .say.mybot::before {
+    content: "對 OpenClaw 助理說 ›" !important;
+    color: #6FBFA0 !important;
+  }
+
+  .say.say2::before {
+    content: "對 OpenClaw 助理說 ›" !important;
+    color: #6FBFA0 !important;
+  }
+
+  .say.config {
+    background: #251c10 !important;
+    border: 1px solid #3d2f1c !important;
+  }
+
+  .say.config::before {
+    content: "設定檔內容 ›" !important;
+    color: #E9A020 !important;
+  }
+
+  /* 手打指令框樣式 */
+  .say-manual {
+    background: #0f1917 !important;
+    border: 1px dashed rgba(233, 160, 32, 0.4) !important;
+    border-radius: 9px;
+    padding: 32px 13px 9px 13px;
+    position: relative;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: #cbdad5 !important;
+    line-height: 1.55;
+    overflow-wrap: break-word;
+    margin: 12px 0;
+  }
+
+  .say-manual::before {
+    content: "手打輸入 ›" !important;
+    position: absolute;
+    left: 13px;
+    top: 10px;
+    color: var(--amber-bright) !important;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: .02em;
+  }
+
+  .expect {
+    margin: 7px 0 3px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+
+  .expect b {
+    color: var(--ink);
+  }
+
+  .check {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--teal-deep);
+    font-weight: 600;
+  }
+
+  .substep {
+    margin: 6px 0 0 0;
+    font-size: 13px;
+    color: var(--ink-faint);
+  }
+
+  .more {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+  }
+
+  .more .ml {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin: 0 0 8px;
+    font-family: var(--mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  .more .say {
+    margin-bottom: 7px;
+  }
+
+  .gotcha {
+    margin-top: 16px;
+    border-left: 3px solid var(--amber-bright);
+    background: var(--amber-wash);
+    padding: 11px 15px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px;
+  }
+
+  .gotcha b {
+    color: var(--amber);
+  }
+
+  .safety {
+    margin-top: 16px;
+    border-left: 3px solid var(--amber-bright);
+    background: var(--amber-wash);
+    padding: 11px 15px;
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+  }
+
+  .safety b {
+    color: var(--amber);
+  }
+
+  .tip {
+    margin-top: 14px;
+    border-left: 3px solid var(--amber-bright);
+    background: var(--amber-wash);
+    padding: 11px 15px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+  }
+
+  .tip b {
+    color: var(--amber);
+  }
+
+  .budget {
+    margin-top: 14px;
+    border-left: 3px solid var(--teal);
+    background: var(--teal-wash);
+    padding: 11px 15px;
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px;
+    color: var(--ink);
+  }
+
+  .budget b {
+    color: var(--teal-deep);
+  }
+
+  /* 全域額度守則 */
+  .quota {
+    margin: 22px 0 6px;
+    background: var(--amber-wash);
+    border: 1px solid color-mix(in srgb, var(--amber) 34%, transparent);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .quota h2 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-family: var(--mono);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--amber);
+  }
+
+  .quota ul {
+    margin: 0;
+    padding: 0 0 0 2px;
+    list-style: none;
+    display: grid;
+    gap: 9px;
+  }
+
+  .quota li {
+    display: grid;
+    grid-template-columns: 22px 1fr;
+    gap: 9px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    align-items: start;
+  }
+
+  .quota li b {
+    color: var(--ink);
+  }
+
+  .quota .ic {
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  /* advanced challenge card */
+  .adv-card {
+    margin-top: 18px;
+    background: var(--amber-wash);
+    border: 1px solid color-mix(in srgb, var(--amber) 36%, transparent);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+
+  .adv-card .seclabel {
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+
+  .adv-card h3 {
+    margin: 0 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .adv-card p {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+
+  .adv-card .say {
+    background: color-mix(in srgb, var(--term-bg) 92%, var(--amber));
+  }
+
+  .adv-card .wn {
+    background: var(--amber-bright);
+    color: #3A2A05;
+  }
+
+  .adv-card .check {
+    color: #8a5a06;
+  }
+
+  code.inline {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    background: var(--line-soft);
+    border: 1px solid var(--line);
+    border-radius: 5px;
+    padding: 1px 6px;
+    color: var(--ink);
+  }
+
+  footer {
+    margin-top: 52px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  footer a {
+    color: var(--teal-deep);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+  }
+
+  @media (max-width:640px) {
+    .theme {
+      padding: 18px 16px;
+    }
+
+    .legend li {
+      grid-template-columns: 1fr;
+      gap: 2px;
+    }
+
+    .walk>li {
+      grid-template-columns: 24px 1fr;
+      gap: 9px;
+    }
+  }
+
+  @media (prefers-reduced-motion:reduce) {
+    * {
+      transition: none !important;
+    }
+  }
+
+  @media print {
+    :root {
+      --paper: #fff;
+      --raised: #fff;
+      --shadow: none;
+    }
+
+    .theme {
+      break-inside: avoid;
+      border: 1px solid #ccc;
+    }
+
+    .say {
+      background: #f0f0f0;
+      color: #111;
+    }
+
+    .say::before {
+      color: #0A5C5B;
+    }
+
+    .adv-card .say {
+      background: #f0f0f0;
+    }
+
+    .wrap {
+      max-width: none;
+    }
+  }
+
+  /* 遊戲化召喚師挑戰關卡樣式 */
+  .challenge-card {
+    margin: 24px 0;
+    background: #121e1d;
+    /* 深色背景，與一般區塊區隔 */
+    border: 2px solid var(--amber-bright);
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 15px rgba(233, 160, 32, 0.15);
+    color: #e2edea;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .challenge-card::before {
+    content: "🎮 CHALLENGE";
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--amber-bright);
+    color: #12211F;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 800;
+    padding: 3px 10px;
+    border-bottom-left-radius: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .challenge-card h3 {
+    margin: 0 0 12px;
+    font-size: 18px;
+    color: var(--amber-bright);
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .challenge-card p {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: #cbdad5;
+    line-height: 1.6;
+  }
+
+  .challenge-card b {
+    color: #ffffff;
+  }
+
+  .challenge-card ul {
+    margin: 0 0 12px;
+    padding-left: 20px;
+    font-size: 13.5px;
+    color: #cbdad5;
+  }
+
+  .challenge-card li {
+    margin-bottom: 6px;
+  }
+
+  .challenge-card .section-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--amber-bright);
+    margin-top: 14px;
+    margin-bottom: 6px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* 摺疊提示樣式 */
+  .challenge-card details {
+    margin-top: 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .challenge-card details[open] {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .challenge-card summary {
+    padding: 10px 14px;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--term-ink);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+  }
+
+  .challenge-card summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .challenge-card details .details-content {
+    padding: 12px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 13px;
+    color: #b0c4be;
+    line-height: 1.5;
+  }
+
+  .challenge-card details code {
+    font-family: var(--mono);
+    background: rgba(0, 0, 0, 0.3);
+    padding: 2px 5px;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Quiz Card CSS Styles */
+  .quiz-card {
+    background: var(--raised);
+    border: 2px solid var(--teal);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 32px 0;
+    box-shadow: var(--shadow);
+  }
+
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+  }
+
+  .quiz-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--teal-deep);
+    font-weight: 700;
+  }
+
+  .quiz-icon {
+    font-size: 22px;
+  }
+
+  .quiz-q {
+    margin-bottom: 24px;
+  }
+
+  .quiz-q:last-child {
+    margin-bottom: 16px;
+  }
+
+  .quiz-q-title {
+    font-weight: 700;
+    font-size: 15.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--ink);
+  }
+
+  .q-badge {
+    background: var(--teal-wash);
+    color: var(--teal-deep);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .quiz-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14.5px;
+    transition: all 0.2s ease;
+    color: var(--ink-soft);
+  }
+
+  .quiz-opt:hover {
+    background: var(--line-soft);
+    border-color: var(--ink-faint);
+  }
+
+  .quiz-opt input[type="radio"],
+  .quiz-opt input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--teal);
+  }
+
+  .quiz-opt.opt-correct {
+    background: #E2EEED !important;
+    border-color: #0E7C7B !important;
+    color: #0A5C5B !important;
+    font-weight: 600;
+  }
+
+  .quiz-opt.opt-incorrect {
+    background: #F8E6D2 !important;
+    border-color: #B4560A !important;
+    color: #8C3E05 !important;
+  }
+
+  .quiz-feedback {
+    margin-top: 10px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .quiz-feedback.fb-correct {
+    background: #E2EEED;
+    border-left: 4px solid #0E7C7B;
+    color: #0A5C5B;
+  }
+
+  .quiz-feedback.fb-incorrect {
+    background: #F8E6D2;
+    border-left: 4px solid #B4560A;
+    color: #8C3E05;
+  }
+
+  .quiz-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .quiz-btn {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .quiz-btn.check-btn {
+    background: var(--teal);
+    color: #fff;
+  }
+
+  .quiz-btn.check-btn:hover {
+    background: var(--teal-deep);
+  }
+
+  .quiz-btn.submit-btn {
+    background: var(--amber);
+    color: #fff;
+  }
+
+  .quiz-btn.submit-btn:hover {
+    background: #A36908;
+  }
+
+  .quiz-status-msg {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  /* Modal styling for quiz submit */
+  .quiz-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: rgba(25, 27, 26, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .quiz-modal.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  .quiz-modal-content {
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    max-width: 480px;
+    width: 100%;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+  }
+
+  .quiz-modal.active .quiz-modal-content {
+    transform: translateY(0);
+  }
+
+  .quiz-modal-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--teal-deep);
+  }
+
+  .quiz-modal-desc {
+    font-size: 15px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .quiz-json-box {
+    background: var(--term-bg);
+    color: var(--term-ink);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    max-height: 180px;
+    margin-bottom: 20px;
+    white-space: pre;
+    text-align: left;
+  }
+
+  .quiz-modal-btn {
+    background: var(--teal);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14.5px;
+    width: 100%;
+    transition: background 0.2s;
+  }
+
+  .quiz-modal-btn:hover {
+    background: var(--teal-deep);
+  }
+
+  .quiz-name-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 14.5px;
+    margin-bottom: 16px;
+    background: var(--raised);
+    color: var(--ink);
+    outline: none;
+  }
+
+  .quiz-name-input:focus {
+    border-color: var(--teal);
+  }
+
+  .svg-diagram {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto;
+    background: var(--raised);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  /* Quick Navigation Bar styles */
+  .quick-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+    padding: 12px 16px;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    list-style: none;
+    align-items: center;
+  }
+
+  .quick-nav-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--teal-deep);
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .quick-nav-item {
+    font-size: 13px;
+    font-family: var(--sans);
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--raised);
+    border: 1px solid var(--line-soft);
+    transition: all 0.2s ease;
+    font-weight: 600;
+  }
+
+  .quick-nav-item:hover {
+    background: var(--teal-wash);
+    border-color: var(--teal);
+    color: var(--teal-deep);
+  }
+</style>
+
+<div class="page">
+  <div class="wrap">
+
+    <header class="mast">
+      <p class="eyebrow">AI 召喚師：從使用 AI，到指揮 AI</p>
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+        <div class="brand">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+            stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3v6" />
+            <path d="M12 9c-2 0-3 1-3.5 3l-1 5" />
+            <path d="M12 9c2 0 3 1 3.5 3l1 5" />
+            <path d="M12 9v6" />
+            <circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none" />
+          </svg>
+          <b>open<span>claw</span> · Day 2 進階應用實作手冊</b>
+        </div>
+        <a href="index.html" class="backlink">&larr; 回首頁</a>
+      </div>
+      <h1>六個主題，一步一步把助理的能力做出來</h1>
+      <p class="lead">每個主題都拆成「一步一步照做」。先做 <span class="chip base">● 基礎任務</span>，行有餘力再挑戰 <span class="chip adv">●
+          進階挑戰</span>。每一步都會告訴你：<b>對 Agent 說什麼、你會看到什麼、怎麼確認成功</b>。照著做，卡住就看該步的「卡住了？」。</p>
+
+      <!-- Quick Navigation Index -->
+      <nav class="quick-nav">
+        <span class="quick-nav-title">📍 快速索引：</span>
+        <a href="#theme-1" class="quick-nav-item">主題 01 網頁自動化</a>
+        <a href="#theme-2" class="quick-nav-item">主題 02 檔案整理與分析</a>
+        <a href="#theme-3" class="quick-nav-item">主題 03 心靈記憶客製</a>
+        <a href="#theme-4" class="quick-nav-item">主題 04 手機 Telegram 遙控</a>
+        <a href="#theme-5" class="quick-nav-item">主題 05 超級 Skill 外掛</a>
+        <a href="#theme-6" class="quick-nav-item">主題 06 終極整合專案</a>
+      </nav>
+
+      <div class="legend">
+        <h2>怎麼讀每一步</h2>
+        <ul>
+          <li><span class="k k-say">對 OpenClaw 助理說 ›</span><span>深色框＝一字不差可以直接對 OpenClaw 說的話（＜ ＞ 裡的字換成你的）。</span></li>
+          <li><span class="k see">👀 你會看到</span><span>Agent 接下來大概會有的反應、畫面上會出現什麼。</span></li>
+          <li><span class="k ok">✅ 確認</span><span>怎麼判斷這一步真的成功了，再往下一步。</span></li>
+        </ul>
+      </div>
+      <div class="quota">
+        <h2>☁️ 今天先讀：開場檢查 + 雲端額度守則（很重要）</h2>
+        <ul>
+          <li><span class="ic">🔌</span><span><b>先確認助理還在：</b>如果你的電腦<b>昨晚被還原、或今天換了一台</b>，昨天裝好的
+              OpenClaw、登入狀態、素材可能都不見了。開場先在終端機打 <code
+                class="inline">openclaw</code>：<b>能正常進入</b>就直接往下；若出現「找不到指令／未授權」，<b>舉手找助教</b>，照昨天安裝教學 Part B 重跑一次（裝
+              Ollama → <code class="inline">ollama signin</code> → <code
+                class="inline">ollama launch openclaw</code>），再把素材重新複製進 workspace（見下方 📁）。</span></li>
+          <li><span class="ic">🧠</span><span>今天六個主題<b>一律用雲端模型</b>（昨天體驗過的本機模型太慢，不適合連續任務）。</span></li>
+          <li><span class="ic">🐢</span><span>每個人的免費額度<b>各自獨立、但都有限</b>，而且全班擠同一條教室網路。<b>一次只交代一個任務、等它做完再下一個</b>，不要狂敲 Enter
+              連發，否則大家一起變慢或被暫時擋下。</span></li>
+          <li><span class="ic">📁</span><span><b>素材在 workspace 才讀得到：</b>講義裡 <code
+                class="inline">openclaw-sample-data/...</code> 的路徑，都以 Agent 的 workspace（<code
+                class="inline">~/.openclaw/workspace</code>）為準。<b>開始任何主題前，先確認素材在裡面</b>——如果它說找不到檔案（電腦被還原時很常見），對 OpenClaw
+              助理說「把 ~/Desktop/openclaw_workshop/openclaw-sample-data 複製到你的 workspace」再繼續。</span></li>
+          <li><span class="ic">🔁</span><span>如果它<b>變很慢、回「額度用盡／請稍後再試」</b>：先等 1–2 分鐘再試；還是不行就執行 <code
+                class="inline">ollama launch openclaw --config</code> <b>切換到你電腦本機的 Ollama 模型</b>（如 <code
+                class="inline">llama3.2:1b</code>）繼續進行實作。</span></li>
+          <li><span class="ic">💬</span><span>講義裡的「配對分享／想一想」是<b>故意不連網的環節</b>——利用這些空檔讓大家的請求錯開，不是浪費時間。</span></li>
+        </ul>
+      </div>
+    </header>
+
+    <!-- ===== Theme 1 ===== -->
+    <section class="theme">
+      <div class="thead">
+        <div class="tno">主題<span>01</span></div>
+        <div class="tt">
+          <h2 id="theme-1">Agent 的眼睛 —— 上網衝浪與網頁自動化</h2>
+          <p class="goal">讓 Agent 自己上網查資料、抓重點、填表單。</p><span class="time">09:00–09:55</span>
+        </div>
+      </div>
+      <div class="prep"><b>🧰 事前準備：</b>① OpenClaw 已啟動（終端機看得到輸入游標）。② 準備一個要查的主題或網址（可用範例檔 <code
+          class="inline">openclaw-sample-data/theme1-瀏覽器/練習網址.txt</code> 裡的維基網址）。③ 第一次用瀏覽器功能時，它可能要下載一次瀏覽器元件，等它跑完即可。
+      </div>
+
+      <p class="seclabel base">● 基礎任務 A · 查資料 → 整理重點 → 存檔</p>
+      <ol class="walk">
+        <li><span class="wn">1</span>
+          <div>
+            <div class="say say2">打開臺灣黑熊的維基百科頁面 https://zh.wikipedia.org/wiki/臺灣黑熊 ，幫我整理成 5 個重點，用條列。</div>
+            <p class="expect">👀 <b>你會看到：</b>Agent 先說「我要打開瀏覽器、前往這個網址」，接著畫面會出現它讀取網頁的過程（擷取到的文字），最後回你一個 1.～5. 的條列。</p>
+            <p class="check">✅ 確認：5 點內容都跟臺灣黑熊有關（食性、分布、保育等），不是它憑空編的。</p>
+          </div>
+        </li>
+        <li><span class="wn">2</span>
+          <div>
+            <div class="say say2">第 3 點我看不太懂，用更簡單的話再講一次，並補一個例子。</div>
+            <p class="expect">👀 <b>你會看到：</b>它只針對第 3 點重寫，變得更白話。</p>
+            <p class="check">✅ 確認：你讀得懂了。這一步在練「追問、要它改」。</p>
+          </div>
+        </li>
+        <li><span class="wn">3</span>
+          <div>
+            <div class="say say2">把這 5 個重點存成 bear.txt，放在桌面。</div>
+            <p class="expect">👀 <b>你會看到：</b>它說要建立檔案，並回報路徑（例如 <code class="inline">~/Desktop/bear.txt</code>）。</p>
+            <p class="check">✅ 確認：到桌面找到 bear.txt，打開，內容就是剛剛那 5 點。</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="more">
+        <p class="ml">更多可以試</p>
+        <div class="say say2">幫我查「台北這個週末的天氣」，用三句話告訴我結果。</div>
+        <div class="say say2">到這個 Google 表單 &lt;貼上老師或助教給的表單網址&gt;，幫我把「姓名、班級、興趣」三欄填好，先讓我確認再送出。</div>
+      </div>
+
+      <div class="gotcha"><b>卡住了？</b>① 它說「查不到」或內容怪怪的 → 把<b>完整網址</b>貼給它，並加一句「請以網頁實際內容為準，不要自己編」。② 填表單它自己按了送出 →
+        下次先說「<b>填好後先停下來給我看，我說可以再送出</b>」。</div>
+
+
+
+      <div class="adv-card">
+        <p class="seclabel">● 進階挑戰 · 串成一條龍：查 → 比較 → 存檔</p>
+        <h3>讓它一次做完多步驟，中間不用你插手</h3>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <div class="say say2">幫我查三款熱門手遊的玩家評價，做成一張比較表（欄位：遊戲名、優點、缺點、評分），存成 games.md 放桌面。</div>
+              <p class="expect">👀 它會「規劃 → 開好幾個網頁 → 逐一整理 → 產生表格 → 存檔」，過程會跑比較久。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <div class="say say2">你少了「原神」，補上去，其他不要動。</div>
+              <p class="check">✅ 觀察它怎麼「只補那一列」而不重做整張表。</p>
+            </div>
+          </li>
+        </ol>
+        <p style="margin:10px 0 0">💡 想一想：它是先開幾個網頁？如果某個網站打不開，它怎麼處理？</p>
+      </div>
+
+      <!-- 🎮 召喚師娛樂挑戰關卡 4 -->
+      <div class="challenge-card">
+        <h3>🎮 召喚師娛樂挑戰關卡 4：夢幻 3C 遊戲主機/手遊攻略全網大搜查</h3>
+        <p>你最近打算入手一台 <b>Nintendo Switch OLED 版主機</b>或是某款熱門大作（如《艾爾登法環》），但不知道目前哪家網路商店最划算，且想了解最新評價。</p>
+        <p>請你<b>手動撰寫一句 Prompt</b> 指揮 Agent 連網搜尋並進行分析，幫你產出一份最完整的採購比價與攻略分析！</p>
+
+        <div class="section-title">🔒 召喚條件（任務限制）：</div>
+        <ul>
+          <li>不能使用複製按鈕，請在終端機手動輸入你的 Prompt！</li>
+          <li>必須讓 Agent 去搜尋至少 <b>3 個不同的網站或電商通路</b>。</li>
+          <li>必須整理出：各通路價格、是否有附贈品或保固、優缺點簡評。</li>
+          <li>預期輸出：在桌面生成一份 <code>game_buyer_guide.md</code> 檔案，並以精美的 Markdown 表格呈現比價結果，最後給出你的「推薦購買建議」。</li>
+        </ul>
+
+        <div class="say-manual">請手動輸入你的 Prompt，例如：
+          <br><i>「幫我上網搜尋 Switch OLED 的價格，比較至少三個網站的價格與保固...最後寫成 game_buyer_guide.md 存到桌面...」</i>
+        </div>
+
+        <details>
+          <summary>🔍 展開召喚提示</summary>
+          <div class="details-content">
+            <b>解題引導：</b><br>
+            1. <b>任務</b>：搜尋並比較特定遊戲主機或遊戲的通路價格與優缺點。<br>
+            2. <b>限制</b>：搜尋 3 個以上通路（如：PChome, momo, Yahoo 購物或巴哈商城），計算最低價。<br>
+            3. <b>輸出檔案</b>：<code>~/Desktop/game_buyer_guide.md</code>，內容包含比價表格與你的推薦心得。<br>
+            試適看在指令中叫它：<i>「請不要只看標題，一定要點進去頁面確認是否有現貨和實際售價！」</i>，這會讓 Agent 的網頁瀏覽更徹底！
+          </div>
+        </details>
+      </div> <!-- Closes .challenge-card -->
+
+      <!-- ===== Quiz Card Theme 1 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_theme1">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 01 隨堂抽考：網頁自動化</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span> OpenClaw 的 Agent 是透過哪一個核心工具來讀取網頁內容與進行網頁截圖的？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme1_0" value="0">
+                <span class="opt-text">內建的 Playwright 網頁瀏覽工具</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme1_0" value="1">
+                <span class="opt-text">直接使用 Python 的 <code>requests</code> 下載純文字</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。OpenClaw 內建了 Playwright 網頁瀏覽工具，可以像真人一樣打開網頁、渲染 JavaScript、點擊按鈕以及截圖，這比純文字下載器（requests）強大得多。">
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 當網頁內容包含大量 JavaScript 動態載入的元件時，如果 Agent 只用
+              <code>curl</code> 或 <code>requests</code>，可能會遇到什麼問題？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme1_1" value="0">
+                <span class="opt-text">網頁載入太快導致電腦當機</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme1_1" value="1">
+                <span class="opt-text">拿到的 HTML 是空的或只有 loading 畫面，無法讀取動態渲染的內容</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 B。許多現代網頁使用 React/Vue 等框架動態渲染，只用 <code>curl</code> 下載會漏掉需要 JS 執行後才產生的內容。使用 Playwright 才能正常讀取。">
+            </div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_theme1')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_theme1')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Theme 2 ===== -->
+    <section class="theme">
+      <div class="thead">
+        <div class="tno">主題<span>02</span></div>
+        <div class="tt">
+          <h2 id="theme-2">整理魔法 —— 檔案狂飆與數據分析</h2>
+          <p class="goal">讓 Agent 整理檔案、批次改名、分析資料。</p><span class="time">09:55–10:50</span>
+        </div>
+      </div>
+      <div class="prep"><b>🧰 事前準備：</b>① 先<b>拿練習資料夾試</b>，不要一開始就對「下載」「文件」這種真的資料夾動手。② 有範例檔的話，把 <code
+          class="inline">openclaw-sample-data/theme2-檔案整理/待整理</code> 複製到桌面，並<b>改名為「練習」</b>；沒有的話照下面步驟 1 讓 Agent
+        自己造一個同名資料夾。（後面每一步都統一叫它「練習」資料夾，兩條路線都通用。）</div>
+
+      <p class="seclabel base">● 基礎任務 A · 造練習檔 → 分類 → 批次改名</p>
+      <ol class="walk">
+        <li><span class="wn">1</span>
+          <div>
+            <div class="say say2">在桌面建一個「練習」資料夾，裡面放：兩個 txt（a.txt、b.txt）和兩張用純色產生的圖片（cat.png、sea.png）。</div>
+            <p class="expect">👀 它會逐一建立檔案並回報。（若已經把範例檔案夾複製並改名為「練習」，就跳過這步，直接進行步驟 2。）</p>
+            <p class="check">✅ 確認：桌面「練習」資料夾裡有幾個檔案（自己造的話是 4 個；用範例檔的話會更多）。</p>
+          </div>
+        </li>
+        <li><span class="wn">2</span>
+          <div>
+            <div class="say say2">看一下桌面「練習」資料夾，把圖片和文字檔分到「images」和「docs」兩個子資料夾。動手前先告訴我你打算怎麼分。</div>
+            <p class="expect">👀 <b>你會看到：</b>它先列出計畫（哪些檔算圖片、哪些算文字），你回「可以」它才動手。</p>
+            <p class="check">✅ 確認：資料夾裡多了 images/ 和 docs/，檔案分對了。</p>
+          </div>
+        </li>
+        <li><span class="wn">3</span>
+          <div>
+            <div class="say say2">把「練習」資料夾裡所有檔案，檔名前面加上今天的日期（格式 YYYY-MM-DD-，用今天實際的年月日）。</div>
+            <p class="expect">👀 它會一個個改名並回報，例如「a.txt → YYYY-MM-DD-a.txt」（YYYY-MM-DD 換成今天實際的年月日）。</p>
+            <p class="check">✅ 確認：每個檔名前面都多了今天的日期。</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="more">
+        <p class="ml">用範例「待整理」資料夾練「誰才是最終版」<span style="font-weight:400">（只有用範例檔複製改名的「練習」資料夾才有這些檔；自己造練習檔的話跳過這題，直接做下面 CSV 練習）</span></p>
+        <div class="say say2">看一下「練習」資料夾裡的 報告_v1.txt、報告_最終.txt、報告_最終_真的最終.txt，比較內容，告訴我哪一份才是真正該留下的最終版，並說明你的判斷依據。</div>
+        <p class="expect">👀 這是很多人電腦裡真實會發生的亂象——檔名有「最終」不代表內容真的最新最好。練習讓 Agent 幫你判斷內容，而不是只看檔名猜。</p>
+        <p class="ml" style="margin-top:14px">用範例 CSV 練分析</p>
+        <div class="say say2">讀取「openclaw-sample-data/theme2-檔案整理/學生社團調查.csv」，告訴我哪個社團人最多、平均滿意度最高的是哪一個，用兩句話總結。</div>
+      </div>
+
+      <div class="gotcha"><b>卡住了？</b>① 它找不到資料夾 → 把<b>完整路徑</b>講清楚（例如「桌面的『練習』資料夾」）。② 你怕它改錯真的檔案 →
+        永遠先在「練習」資料夾試，並讓它<b>先講計畫再動手</b>。③ 想反悔 → 跟它說「把剛剛的改名還原」。</div>
+
+
+
+      <div class="adv-card">
+        <p class="seclabel">● 進階挑戰 · 讓它寫一個可重複使用的小腳本</p>
+        <h3>從「做一次」升級成「一個工具」</h3>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <div class="say say2">幫我寫一個小腳本 tidy.sh，執行後會把桌面所有 .png 圖片搬到桌面的「Screenshots」資料夾。先把腳本內容給我看、解釋每一行，我說可以再執行。
+              </div>
+              <p class="expect">👀 它會產生腳本、逐行解釋，等你同意。</p>
+              <p class="check">✅ 你看得懂每一行在做什麼，再讓它跑。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <div class="say say2">很好，再幫我加一行：搬完後印出「共搬移了 N 個檔案」。</div>
+              <p class="check">✅ 執行後真的印出數量。你剛剛「讀懂 → 修改 → 再測」了一支程式。</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <!-- 🎮 召喚師娛樂挑戰關卡 5 -->
+      <div class="challenge-card">
+        <h3>🎮 召喚師娛樂挑戰關卡 5：怪獸相簿大混亂救援行動</h3>
+        <p>
+          你剛從漫展/旅行回來，相機記憶卡裡塞滿了各種照片與混亂的檔案。在你的桌面「練習」資料夾中，有一堆未命名的亂檔（例如：<code>貓咪.png</code>、<code>海邊.png</code>、<code>螢幕截圖 2026-06-30.png</code>
+          等）。</p>
+        <p>請你<b>手動撰寫一句 Prompt</b>，指揮 Agent 自動幫你判斷檔案屬性、分類整理，並重命名檔案！</p>
+
+        <div class="section-title">🔒 召喚條件（任務限制）：</div>
+        <ul>
+          <li>不能使用複製按鈕，請在終端機手動輸入你的 Prompt！</li>
+          <li><b>限制條件 1</b>：在「練習」資料夾中，建立兩個子資料夾 <code>images/cat</code> 和 <code>images/scenery</code>。</li>
+          <li><b>限制條件 2</b>：讀取圖片的檔案名稱，將包含「貓」或貓咪相關的搬移至 <code>images/cat</code>；將海邊、風景相關的搬移至 <code>images/scenery</code>。
+          </li>
+          <li><b>限制條件 3</b>：搬移後，將貓咪圖片改名為 <code>[貓咪]YYYY-MM-DD-貓咪.png</code>（使用今天實際日期），風景圖片改名為
+            <code>[風景]YYYY-MM-DD-海邊.png</code>，其他螢幕截圖搬移至 <code>images/screenshots</code>。
+          </li>
+        </ul>
+
+        <div class="say-manual">請手動輸入你的 Prompt，例如：
+          <br><i>「看一下桌面的練習資料夾，建立 images/cat 和 images/scenery，判斷圖片內容...搬過去並重新改名為...」</i>
+        </div>
+
+        <details>
+          <summary>🔍 展開召喚提示</summary>
+          <div class="details-content">
+            <b>解題引導：</b><br>
+            1. <b>任務</b>：分類「練習」資料夾中的圖片並重新命名。<br>
+            2. <b>脈絡</b>：你有 <code>貓咪.png</code>、<code>海邊.png</code> 等檔案。如果 Agent
+            不確定圖片內容，請它透過檔名關鍵字（如「貓咪」或「海邊」）進行判斷與分類。<br>
+            3. <b>輸出結果</b>：子資料夾與改名後的檔案。<br>
+            試試看對它說：<i>「執行任何搬移或重命名之前，先列出清單讓我確認，等我說『OK』你再動手。」</i>，確保它不會把其他重要檔案移錯位置！
+          </div>
+        </details>
+      </div> <!-- Closes .challenge-card -->
+
+      <!-- ===== Quiz Card Theme 2 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_theme2">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 02 隨堂抽考：檔案與數據分析</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span> 當資料夾內有成百上千個檔案需要批次分類或重新命名時，Agent 最常用的策略是？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme2_0" value="0">
+                <span class="opt-text">用 Python 寫一個批次處理腳本並在 workspace 執行它</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme2_0" value="1">
+                <span class="opt-text">在終端機一個一個打 <code>mv</code> 指令</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。Agent 最擅長的是「撰寫專門的程式腳本」來幫它進行大量重複性的檔案操作，這比起它一行行手動打指令快且安全得多。"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 如果想讓 Agent 分析一個大容量的 CSV 檔並統計資料，以下哪種作法效能最佳且不易遺漏資料？
+            </div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme2_1" value="0">
+                <span class="opt-text">把整個 CSV 的內容全部複製貼進聊天視窗</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme2_1" value="1">
+                <span class="opt-text">請 Agent 使用 Python (例如 pandas 套件) 直接讀取檔案進行運算，只將統計結果印出</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 B。如果將大量文字複製進聊天視窗，可能會超出 AI 的 token 長度限制，且非常耗費 Token。讓 Agent 寫 Python 讀檔只輸出結果是最聰明的作法。">
+            </div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_theme2')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_theme2')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Theme 3 ===== -->
+    <section class="theme">
+      <div class="thead">
+        <div class="tno">主題<span>03</span></div>
+        <div class="tt">
+          <h2 id="theme-3">心靈感應 —— 教 AI 記住你，訂做專屬助理</h2>
+          <p class="goal">教 Agent 記住你，變成你專屬的助理。</p><span class="time">11:05–12:00</span>
+        </div>
+      </div>
+      <div class="prep"><b>🧰 事前準備：</b>想好你要它記住的「可以公開」的資訊（名字、年級、興趣、講話風格）。<b>先不要</b>放任何密碼、身分證、別人的私事。</div>
+
+      <p class="seclabel base">● 基礎任務 A · 讀取記憶 → 修改個人資訊 → 驗證與應用</p>
+      <ol class="walk">
+        <li><span class="wn">1</span>
+          <div>
+            <p class="expect"><b>先測試它是否還記得你昨天在對話中或自我介紹時透露的資訊：</b></p>
+            <div class="say say2">你還記得關於我的哪些事？列出來。</div>
+            <p class="expect">👀 <b>關鍵驗證：</b>它應該列出你昨天自我介紹的名字、興趣、目標等。這證明「記憶」有成功跨天/跨對話留存下來。</p>
+            <p class="check">✅ 確認：它列出的個人資訊符合你昨天的設定。</p>
+            <p class="expect" style="margin-top:8px"><b>🔁
+                如果它說「不記得你」（電腦昨晚被還原時會這樣）：</b>別緊張，先<b>重新自我介紹一次並請它記住</b>，就能接著往下做——</p>
+            <div class="say say2">記住關於我的事：我叫 &lt;名字&gt;，就讀 &lt;年級&gt;，興趣是 &lt;興趣&gt;。以後都記得。</div>
+          </div>
+        </li>
+        <li><span class="wn">2</span>
+          <div>
+            <p class="expect"><b>請它修改/更新你的個人資訊，例如加入新的興趣：</b></p>
+            <div class="say say2">請幫我修改我的個人資訊，把興趣改為 &lt;新的興趣&gt;（例如：寫程式、聽音樂），並多加一項「喜歡看科幻片」。</div>
+            <p class="expect">👀 它會回覆已記住修改後的資訊。</p>
+            <p class="check">✅ 確認：它成功回應已完成修改。</p>
+          </div>
+        </li>
+        <li><span class="wn">3</span>
+          <div>
+            <p class="expect"><b>再次查詢以確認更新成功，並用新偏好來推薦內容：</b></p>
+            <div class="say say2">列出你現在記得關於我的事。並根據我的新愛好，推薦三部我可能會喜歡的科幻片。</div>
+            <p class="check">✅ 確認：它列出的興趣確實更新了，且推薦的影片符合「科幻片」及更新後的興趣偏好。</p>
+          </div>
+        </li>
+        <li><span class="wn">4</span>
+          <div>
+            <p class="expect"><b>考驗它對今天操作（上網搜尋與瀏覽）的記憶：</b></p>
+            <div class="say say2">根據我們剛才的聊天紀錄，我最近上網找過或關心哪些主題？</div>
+            <p class="expect">👀 <b>重點觀察：</b>它會回顧前面「主題 01（網頁搜尋）」時的紀錄，摘要出你上網搜尋過的關鍵字或內容。</p>
+            <p class="check">✅ 確認：它能正確回憶起剛才搜尋過的主題或網頁重點。</p>
+            <p class="expect" style="margin-top:8px"><b>🔁 如果它想不起來（例如中途重啟過對話）：</b>別緊張，直接對它說「我今天在主題 1
+              查過台灣黑熊的資料，幫我記住」，再繼續下一步即可。</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="safety"><b>🔒 停下來想 10 秒：</b>叫它「列出記得我的哪些事」，看看內容。如果這些被別人看到你會不會不舒服？<b>只教它記無妨外流的資訊。</b>要它忘記某件事，就說「請忘掉我剛剛說的
+        XXX」。</div>
+
+
+
+      <div class="adv-card">
+        <p class="seclabel">● 進階挑戰 · 檢視記憶 + 設計助理人設</p>
+        <h3>把「它記得什麼、它怎麼講話」變成你能控制的</h3>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <div class="say say2">把你目前記得關於我的所有事情完整列出來，我要檢查。</div>
+              <p class="check">✅ 逐條看，把不想留的挑出來。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <div class="say say2">忘掉「&lt;你不想留的那條&gt;」。然後從現在起，用「嚴格但貼心的學長」語氣跟我說話：先鼓勵、再直接指出問題。</div>
+              <p class="check">✅ 接著隨便問它一題，感受語氣真的變了。你剛剛「設計了一個 AI 人設」。</p>
+            </div>
+          </li>
+        </ol>
+      </div> <!-- Closes .adv-card -->
+
+      <!-- ===== Quiz Card Theme 3 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_theme3">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 03 隨堂抽考：心靈記憶客製</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span> 在 OpenClaw 中，如果想要讓 Agent
+              每次啟動時都自動載入我們客製化的背景設定（如稱呼我為「召喚師」），我們應該修改哪一個設定？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme3_0" value="0">
+                <span class="opt-text">修改 <code>~/.openclaw/openclaw.json</code> 中的 <code>systemInstruction</code>
+                  設定</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme3_0" value="1">
+                <span class="opt-text">每一次對話時，在 Prompt 中手動提醒它一次</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。透過將客製化指令寫入 <code>openclaw.json</code> 的 <code>systemInstruction</code>，此全域設定會在每次開機時加載，不需反覆手動輸入。">
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 關於 System Instruction (系統指令)，以下哪項描述最精確？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme3_1" value="0">
+                <span class="opt-text">它是全域的規則設定，會放在每次對話的最上層，用來規範 Agent 的角色定位與行為準則</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme3_1" value="1">
+                <span class="opt-text">它只在對話開始時生效，之後 Agent 很快就會完全忘記</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。系統指令（System Prompt）具有最高的指導優先度，會持續附加在對話的頂部，規範 Agent 的整體運作風格與安全準則。"></div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_theme3')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_theme3')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Theme 4 ===== -->
+    <section class="theme">
+      <div class="thead">
+        <div class="tno">主題<span>04</span></div>
+        <div class="tt">
+          <h2 id="theme-4">隨身召喚器 —— 把 AI 助理塞進手機 Telegram</h2>
+          <p class="goal">把 Agent 接到 Telegram，用手機隨時對它下指令。</p><span class="time">13:00–13:55</span>
+        </div>
+      </div>
+      <div class="prep"><b>🧰 事前準備：</b>① 手機裝好 Telegram 並登入。② 這段涉及 BotFather 註冊與終端機金鑰串接，請<b>打開 <a
+            href="openclaw-telegram-guide.html" target="_blank"
+            style="color: var(--teal); font-weight: 700; text-decoration: none; border-bottom: 1px solid var(--teal);">📖
+            Telegram 串接指南</a> 對照操作</b>。③ 電腦上的 OpenClaw 要保持開啟。</div>
+
+      <!-- SVG Diagram: Telegram Remote Control Flow -->
+      <svg viewBox="0 0 720 220" class="svg-diagram">
+        <style>
+          .tel-node {
+            fill: var(--raised);
+            stroke: var(--teal);
+            stroke-width: 2;
+            rx: 8;
+          }
+
+          .tel-text {
+            fill: var(--ink-soft);
+            font-family: var(--sans);
+            font-size: 11px;
+            text-anchor: middle;
+          }
+
+          .line-flow {
+            stroke: var(--teal);
+            stroke-width: 2;
+            fill: none;
+          }
+
+          .flow-label {
+            font-family: var(--sans);
+            font-size: 10px;
+            fill: var(--ink-faint);
+            text-anchor: middle;
+          }
+        </style>
+
+        <!-- Left: Phone Telegram -->
+        <g transform="translate(20, 20)">
+          <rect x="0" y="0" width="140" height="160" class="tel-node" style="stroke:var(--teal);" />
+          <text x="70" y="30" class="node-title" style="font-size:13px;">📱 手機 Telegram</text>
+          <rect x="15" y="55" width="110" height="85" rx="6" fill="var(--paper)" stroke="var(--line)" />
+          <text x="70" y="80" class="tel-text" style="font-weight:bold; fill:var(--teal-deep);">對 Bot 傳送指令</text>
+          <text x="70" y="105" class="tel-text">「幫我統計...」</text>
+          <text x="70" y="125" class="tel-text" style="font-size:10px; fill:var(--amber);">接收表格回覆</text>
+        </g>
+
+        <!-- Middle: Telegram Server -->
+        <g transform="translate(260, 40)">
+          <rect x="0" y="0" width="180" height="120" class="tel-node" style="stroke:var(--line); fill:var(--paper);" />
+          <text x="90" y="40" class="node-title" style="fill:var(--ink); font-size:13px;">☁️ Telegram 伺服器</text>
+          <text x="90" y="70" class="tel-text">安全暫存與訊息轉發</text>
+          <text x="90" y="95" class="tel-text" style="font-family:var(--mono); font-size:10px;">api.telegram.org</text>
+        </g>
+
+        <!-- Right: Local PC -->
+        <g transform="translate(540, 20)">
+          <rect x="0" y="0" width="160" height="160" class="tel-node" style="stroke:var(--amber);" />
+          <text x="80" y="30" class="node-title" style="fill:var(--amber-deep); font-size:13px;">💻 本機電腦</text>
+          <rect x="15" y="55" width="130" height="85" rx="6" fill="var(--paper)" stroke="var(--line)" />
+          <text x="80" y="78" class="tel-text" style="font-weight:bold; fill:var(--amber);">OpenClaw Bot</text>
+          <text x="80" y="100" class="tel-text" style="font-size:10px;">安全鎖 (chat_id) 驗證</text>
+          <text x="80" y="120" class="tel-text" style="font-size:10px; fill:var(--teal-deep);">呼叫 Python/終端機</text>
+        </g>
+
+        <!-- Connectors -->
+        <!-- Phone to Cloud -->
+        <path d="M160,80 L250,80" class="line-flow" />
+        <polygon points="255,80 247,75 247,85" fill="var(--teal)" />
+        <text x="205" y="70" class="flow-label">HTTPS POST</text>
+
+        <!-- Cloud to PC (GetUpdates Pooling) -->
+        <path d="M440,90 L530,90" class="line-flow" style="stroke:var(--amber); stroke-dasharray: 4 3;" />
+        <polygon points="535,90 527,85 527,95" fill="var(--amber)" />
+        <text x="485" y="80" class="flow-label" style="fill:var(--amber);">Polling / Webhook</text>
+
+        <!-- Return Loop PC to Cloud -->
+        <path d="M530,120 L440,120" class="line-flow" />
+        <polygon points="435,120 443,115 443,125" fill="var(--teal)" />
+        <text x="485" y="135" class="flow-label">Send Message</text>
+
+        <!-- Return Loop Cloud to Phone -->
+        <path d="M260,110 L160,110" class="line-flow" />
+        <polygon points="155,110 163,105 163,115" fill="var(--teal)" />
+        <text x="210" y="125" class="flow-label">Push Notification</text>
+      </svg>
+
+      <p class="seclabel base">● 基礎任務 A · 讓 Agent 學會用 Telegram 收發訊息</p>
+      <ol class="walk">
+        <li><span class="wn">1</span>
+          <div>
+            <div class="say say2">我想用 Telegram 跟你聊天。請一步一步帶我設定，需要我做什麼、去哪裡點、貼什麼，都講清楚，一次講一步。</div>
+            <p class="expect">👀 <b>你會看到：</b>它會嘗試引導你（通常是：在 Telegram 搜尋 @BotFather 建一個 bot → 複製 Token → 回電腦串接）。<br>
+              💡 <b>防呆提醒：</b>如果 Agent 沒能主動幫你完成，或者對話中卡住，請直接按照 <b><a href="openclaw-telegram-guide.html" target="_blank"
+                  style="color: var(--teal); font-weight: 600; text-decoration: none; border-bottom: 1px solid var(--teal);">📖
+                  Telegram 指南</a></b> 中的 Part B 與 Part C 手動在終端機輸入 <code>openclaw channels add</code> 指令完成串接！</p>
+            <p class="check">✅ 確認：每一步你都做完了，它回報「連線成功」。</p>
+          </div>
+        </li>
+        <li><span class="wn">2</span>
+          <div>
+            <div class="say say2">（拿起手機，在 Telegram 對你的 bot 傳）幫我查明天台北的天氣。</div>
+            <p class="expect">👀 <b>關鍵時刻：</b>幾秒後手機上會收到 Agent 的回覆——代表電腦上的助理，現在能用手機遙控了。</p>
+            <p class="check">✅ 確認：手機真的收到回覆。</p>
+          </div>
+        </li>
+        <li><span class="wn">3</span>
+          <div>
+            <div class="say say2">（手機傳）幫我記一件事：明天要帶體育服。</div>
+            <p class="check">✅ 確認：它回「記住了」。之後在電腦問它「我明天要帶什麼」，它答得出來＝記憶跨裝置共用。</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="gotcha"><b>卡住了？</b>① token 貼上去說無效 → 多半是<b>複製少了字或多了空白</b>，回 BotFather 重新複製整段。② 手機傳了沒反應 → 確認電腦上的
+        OpenClaw <b>還開著、有連網</b>。③ 找不到 BotFather → 在 Telegram 搜尋列打 <code class="inline">BotFather</code>，選有藍色勾勾的官方帳號。
+      </div>
+
+
+
+      <div class="adv-card">
+        <p class="seclabel">● 進階挑戰 A · 用一個關鍵字觸發一整套動作</p>
+        <h3>讓「傳一句話」＝「跑一連串事情」</h3>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <div class="say say2">幫我設定：以後我在 Telegram 傳「早安」給你，你就自動回我三件事——今天台北天氣、一句打氣的話、提醒我看今天的行程。</div>
+              <p class="check">✅ 設定完，手機傳「早安」測一次，看三件事有沒有都回來。</p>
+            </div>
+          </li>
+        </ol>
+        <p style="margin:10px 0 0">💡 延伸：想一個你真的會用的關鍵字——傳「回家」提醒你帶什麼、傳「考試週」列出本週考程。</p>
+        <p style="margin:8px 0 0">⚠️ 小提醒：這種「關鍵字觸發」靠的是它的<b>記憶</b>，不是內建的自動化功能——過幾天它可能會忘記。忘了就把規則再講一次即可。</p>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px dashed var(--line);">
+
+        <p class="seclabel">● 進階挑戰 B · 讓助理主動找你：體驗 Heartbeat（主動巡查）</p>
+        <h3>從「被動回答」到「主動關心」的轉變</h3>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <div class="say say2">幫我在工作區建立一個 HEARTBEAT.md 檔案，裡面寫入一條待辦事項：- [ ] 記得站起來動一動。</div>
+              <p class="check">✅ 確認：工作資料夾（workspace）裡出現了 HEARTBEAT.md 檔案。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <div class="say say2">幫我設定 Heartbeat 巡查排程，每 2 分鐘（或最短時間）檢查一次
+                HEARTBEAT.md。請開啟「隔離工作階段（isolatedSession）」與「輕量內容（lightContext）」以節省 token，如果裡面有未完成的待辦事項，請主動在 Telegram
+                傳訊息提醒我。</div>
+              <p class="expect">👀 <b>觀察重點：</b>助理會自動修改它自己的設定檔（如 openclaw.json）來建立定時排程。你可以靜等兩分鐘，手機 Telegram 就會收到助理的主動提醒！
+              </p>
+            </div>
+          </li>
+          <li><span class="wn">3</span>
+            <div>
+              <div class="say say2">把 HEARTBEAT.md 裡的待辦事項打勾標記為完成（改為 - [x]），然後幫我取消剛才的 Heartbeat 排程，免得它一直執行。</div>
+              <p class="check">✅ 確認：手機不會再收到提醒，且排程已被清除。這就是「Heartbeat」主動式巡查與「人機協同（Human-in-the-loop）」的結合！</p>
+            </div>
+          </li>
+        </ol>
+        <p style="margin:10px 0 0">⚠️ <b>Token 警告與優化：</b>定時巡查若每次執行都攜帶完整對話歷史，會極速消耗額度。因此我們在步驟 2 特別要求開啟了 <code
+            class="inline">isolatedSession</code> 與 <code class="inline">lightContext</code> 模式，這能讓每次心跳只讀取 <code
+            class="inline">HEARTBEAT.md</code> 檔案而不攜帶聊天紀錄，將 Token 消耗降至極低。測試成功後，請務必按照步驟 3 刪除排程，養成良好的成本控制習慣。</p>
+      </div>
+
+      <!-- 🎮 召喚師娛樂挑戰關卡 6 -->
+      <div class="challenge-card">
+        <h3>🎮 召喚師娛樂挑戰關卡 6：Telegram 點餐/訂飲料小助手</h3>
+        <p>你和同學正在討論晚餐吃什麼，決定統計一下要訂哪家便當店或手搖飲。現在你可以用手機遙控助理來幫忙統計這份麻煩的訂單！</p>
+        <p>請你<b>手動撰寫一句 Prompt</b> 交給 Agent（在終端機中，或是直接在手機 Telegram 傳給 Bot），讓它聽懂點餐命令並完成統計。</p>
+
+        <div class="section-title">🔒 召喚條件（任務限制）：</div>
+        <ul>
+          <li>不能使用複製按鈕，請在手機 Telegram 或電腦終端機手動輸入！</li>
+          <li><b>限制條件 1</b>：設定觸發關鍵字「訂便當」或「訂飲料」。</li>
+          <li><b>限制條件 2</b>：傳送點餐資訊（例如：「小明要炸雞腿飯、小華要排骨飯、我要爌肉飯」，以及「炸雞腿飯 110 元、排骨飯 100 元、爌肉飯 95 元」）。</li>
+          <li><b>限制條件 3</b>：AI 助理必須能辨識每個人點的餐點與單價，將明細、單價整理成 Markdown 表格，並自動計算出<b>總金額</b>，最後回傳給你。</li>
+        </ul>
+
+        <div class="say-manual">在 Telegram 聊天室中，對你的 Bot 傳送一條你自己寫的 Prompt，例如：
+          <br><i>「幫我統計這次的便當訂單，小明要炸雞腿飯 110 元...請計算總金額並用表格回覆我...」</i>
+        </div>
+
+        <details>
+          <summary>🔍 展開召喚提示</summary>
+          <div class="details-content">
+            <b>解題引導：</b><br>
+            1. <b>任務</b>：透過 Telegram 計算多人點餐明細與總金額。<br>
+            2. <b>脈絡</b>：這是一次統計任務，包含多個品項與單價。<br>
+            3. <b>輸出結果</b>：統計表格與總加算結果，回傳至 Telegram 訊息。<br>
+            試試看在 Telegram 對它傳：<i>「幫我統計：小明點波霸奶茶 60 元、小紅點四季春 35 元，如果滿 200 元打九折。請幫我列出明細、計算折扣後的總金額，並用表格回傳！」</i>
+          </div>
+        </details>
+      </div> <!-- Closes .challenge-card -->
+
+      <!-- ===== Quiz Card Theme 4 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_theme4">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 04 隨堂抽考：手機 Telegram 遙控</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span> 在將 OpenClaw 接上 Telegram 時，我們需要向哪一個官方帳號申請 Token？
+            </div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme4_0" value="0">
+                <span class="opt-text">@BotFather</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme4_0" value="1">
+                <span class="opt-text">@TelegramBot</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。@BotFather 是 Telegram 官方管理所有機器人的帳號，你可以在對話中輸入 <code>/newbot</code> 來建立新機器人並取得授權金鑰 Token。">
+            </div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 當你的 OpenClaw 順利連接 Telegram 後，安全防護上最重要的一點是？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme4_1" value="0">
+                <span class="opt-text">必須在設定中限制只有你的 Telegram 帳號 ID (chat_id) 才能控制機器人</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme4_1" value="1">
+                <span class="opt-text">每次用完機器人都要把 Token 刪除，下次用再重灌</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。如果不加限制，任何知道你機器人名字的使用者都可以給它發送指令。為保護本機安全，必須啟用 `chat_id` 安全鎖，只聽從你個人的命令。"></div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_theme4')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_theme4')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Theme 5 ===== -->
+    <section class="theme">
+      <div class="thead">
+        <div class="tno">主題<span>05</span></div>
+        <div class="tt">
+          <h2 id="theme-5">超級外掛 —— 解鎖新技能與自製 Quiz 抽考機</h2>
+          <p class="goal">幫 Agent 裝新技能，進階者自己做一個。</p><span class="time">13:55–14:50</span>
+        </div>
+      </div>
+      <div class="prep"><b>🧰 事前準備：</b>① OpenClaw 開著。② <b>老師會公布 1–2 個「已審核過」的 skill 名稱</b>，基礎任務只裝這幾個。③ 進階任務會用到範例題庫 <code
+          class="inline">openclaw-sample-data/theme5-我的筆記/</code>（生物/歷史/地理/英文 .md），先確認資料夾在。④ 標題的「外掛」就是指 skill——OpenClaw
+        裡兩者是同一件事，不是兩套不同系統。</div>
+
+      <div class="safety"><b>🔒 為什麼不能自己亂裝？</b>skill 市集上什麼人都能上架，<b>曾出現過會偷金鑰、亂改記憶檔的惡意 skill</b>。就像手機不亂裝來路不明的 APP
+        一樣——今天<b>只安裝老師審核過的 skill</b>；以後自己想裝，先看清楚它是誰做的、要求哪些權限。</div>
+
+      <p class="seclabel base">● 基礎任務 A · 認識 skill → 裝老師指定的 → 用一次</p>
+      <ol class="walk">
+        <li><span class="wn">1</span>
+          <div>
+            <div class="say say2">我想安裝與測試內建的 skill「weather」（或老師現場指定的其他名稱）。先告訴我：它能做什麼、安裝後會多出哪些能力？先別安裝。</div>
+            <p class="expect">👀 它會說明這個 skill 的用途與會取得的能力。</p>
+            <p class="check">✅ 確認：你聽得懂它是做什麼的，再進下一步——「先搞懂再安裝」本身就是這一節要練的習慣。</p>
+          </div>
+        </li>
+        <li><span class="wn">2</span>
+          <div>
+            <div class="say say2">好，幫我安裝它，裝好後告訴我怎麼用、給我一個範例。</div>
+            <p class="expect">👀 它會安裝（可能顯示下載進度），完成後示範用法。</p>
+            <p class="check">✅ 確認：它說「已安裝」並給了範例。</p>
+          </div>
+        </li>
+        <li><span class="wn">3</span>
+          <div>
+            <div class="say say2">用剛裝好的 weather 技能（或你剛才安裝的技能），幫我查詢明天台北的天氣，並建議我出門需要準備什麼。</div>
+            <p class="check">✅ 確認：技能真的成功啟動並回傳了明天台北的天氣與實用建議。</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="gotcha">
+        <b>卡住了？</b>安裝失敗多半是<b>網路</b>或<b>名稱打錯</b>——對照老師公布的名稱，一個字一個字確認。老師指定的都裝好了？先別去市集逛「其他好玩的」，把時間留給進階挑戰：自己做的 skill 比裝來的更酷。
+      </div>
+
+
+
+      <div class="adv-card">
+        <p class="seclabel">● 進階挑戰 · 給有程式基礎的你：自己做一個抽考 skill</p>
+        <h3>做一個「輸入科目 → 隨機抽 5 題考我」的 skill</h3>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <div class="say say2">我想自己做一個 skill。先跟我一起把規格講清楚：輸入是「科目名稱」，它就去「openclaw-sample-data/theme5-我的筆記」資料夾找同名的 .md
+                檔（例如 生物.md），隨機抽 5 題問我，我答完再對答案。先只寫規格，別寫程式。</div>
+              <p class="check">✅ 你們先講好「輸入、輸出、用到哪個資料夾」——這是寫程式前最重要的一步。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <div class="say say2">規格 OK，現在幫我建立這個 skill，每個檔案都解釋它的作用。建好後先別跑。</div>
+              <p class="check">✅ 你讀懂它產生的檔案結構。</p>
+            </div>
+          </li>
+          <li><span class="wn">3</span>
+            <div>
+              <div class="say say2">用「生物」測試這個 skill。如果抽題或對答案有錯，我們一起修。</div>
+              <p class="check">✅ 它真的從 生物.md 抽 5 題考你。你完成了「規格 → 產生 → 測試 → 修正」的完整循環。</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <!-- 🎮 召喚師娛樂挑戰關卡 7 -->
+      <div class="challenge-card">
+        <h3>🎮 召喚師娛樂挑戰關卡 7：自製「動漫/手遊知識」Quiz 抽考 Skill</h3>
+        <p>不只是下載別人的 Skill，你還可以自己打造一個專屬的！本挑戰要請你做一個能夠抽考同桌同學「動漫經典台詞」或「手遊冷知識」的趣味 Skill，並發布在電腦上讓同學遊玩！</p>
+
+        <div class="section-title">🔒 召喚條件（任務限制）：</div>
+        <ul>
+          <li>不能使用複製按鈕，請手動在終端機輸入與 Agent 的討論！</li>
+          <li><b>第一步：手動編寫題庫</b>：在桌面建立 <code>anime_quiz.txt</code>，手動寫入至少 5 題你最愛的動漫/遊戲問題與答案（例如：『請問《原神》中風神的名號是？答案：溫迪』）。
+          </li>
+          <li><b>第二步：指令生成 Skill 結構</b>：對 Agent 說明你要寫一個 Skill。讓它讀取桌面的 <code>anime_quiz.txt</code>，並自動生成一個名為
+            <code>anime-quiz</code> 的 Skill 模組，使其具備「隨機出一題、等待使用者輸入、判斷對錯」的功能。
+          </li>
+          <li><b>第三步：上機測試</b>：啟用該 Skill，隨機出題給旁邊的同學答，測試對錯判斷是否完美。</li>
+        </ul>
+
+        <div class="say-manual">請在終端機中自行撰寫 Prompt，例如：
+          <br><i>「我想寫一個叫 anime-quiz 的 skill，請讀取桌面的 anime_quiz.txt 檔作為題庫，隨機抽一題考我，並判斷對錯...」</i>
+        </div>
+
+        <details>
+          <summary>🔍 展開召喚提示</summary>
+          <div class="details-content">
+            <b>解題引導：</b><br>
+            1. <b>設計思路</b>：在 OpenClaw 中，Skill 是以 python 或 JavaScript/JSON 定義的擴充功能。你可以對 Agent 說：<i>「幫我寫一個 OpenClaw
+              Skill，它會載入桌面上的 anime_quiz.txt，定義一個 <code class="inline">run_quiz</code> 的功能供使用。」</i><br>
+            2. <b>除錯小撇步</b>：如果 Agent 寫出來的 Skill 有語法錯誤，別慌張！把終端機報錯的內容複製給
+            Agent，對它說：<i>「執行時出現了這個錯誤，請幫我修正...」</i>。這也是召喚師的重要修練！
+          </div>
+        </details>
+      </div> <!-- Closes .challenge-card -->
+
+      <!-- ===== Quiz Card Theme 5 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_theme5">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 05 隨堂抽考：超級 Skill 外掛</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span> 在 OpenClaw 中，當我們要安裝一個他人寫好的 Skill 時，哪一項是**不安全**的行為？
+            </div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme5_0" value="0">
+                <span class="opt-text">隨便在市集看到好玩的就直接安裝，完全不看權限要求與原始碼</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme5_0" value="1">
+                <span class="opt-text">只安裝經過老師或社群審核通過的安全 Skill</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。第三方 Skill 可以執行任意的系統指令與檔案讀寫。若無經過審核即隨意安裝，可能導致本機資料外洩，必須非常謹慎。"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 建立一個客製化 Skill 時，通常需要包含哪兩種核心定義？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme5_1" value="0">
+                <span class="opt-text">描述 Skill 規格與功能的定義檔（如 YAML/Markdown/Frontmatter）與對應的執行程式碼（如
+                  Python/JavaScript）</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme5_1" value="1">
+                <span class="opt-text">一張代表 Skill 的圖片與一個 EXE 執行檔</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。一個 Skill 必須告訴 Agent「我有什麼工具、怎麼呼叫」（定義檔），並提供「呼叫後怎麼執行」的邏輯（程式碼腳本）。"></div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_theme5')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_theme5')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Theme 6 ===== -->
+    <section class="theme">
+      <div class="thead">
+        <div class="tno">主題<span>06</span></div>
+        <div class="tt">
+          <h2 id="theme-6">終極召喚 —— 打造你的整合專案與舞台 Showcase</h2>
+          <p class="goal">把學到的能力組起來，做一個你自己的作品。</p><span class="time">15:05–16:00</span>
+        </div>
+      </div>
+      <div class="prep"><b>🧰 事前準備：</b>回想前五個主題你最喜歡哪個能力。專案不用大，<b>能跑、你想用</b>最重要。範例素材（單字表、名言）在 <code
+          class="inline">openclaw-sample-data/theme6-專案素材/</code>。</div>
+
+      <p class="seclabel base">● 基礎任務 · 選一個題目，用「先講計畫再做」的方式完成</p>
+      <ol class="walk">
+        <li><span class="wn">1</span>
+          <div>
+            <div class="say say2">
+              我想做一個「英文單字複習小工具」：讀「openclaw-sample-data/theme6-專案素材/英文單字表.csv」，隨機出一個英文問我中文，我答完給對錯和分數。先講你打算怎麼做，分幾步，我確認再開始。
+            </div>
+            <p class="expect">👀 它會先給你一份「作法計畫」（幾個步驟）。</p>
+            <p class="check">✅ 你看過計畫、覺得 OK，回它「開始吧」。</p>
+          </div>
+        </li>
+        <li><span class="wn">2</span>
+          <div>
+            <div class="say say2">（它做好後）跑跑看，先考我三題。</div>
+            <p class="expect">👀 它會實際出題、收你的答案、給分。</p>
+            <p class="check">✅ 確認：能出題、能判對錯、能計分。</p>
+          </div>
+        </li>
+        <li><span class="wn">3</span>
+          <div>
+            <div class="say say2">很好，再加一個功能：結束時列出我答錯的單字讓我複習。</div>
+            <p class="check">✅ 你替自己的作品「加了一個功能」——這就是迭代。</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="more">
+        <p class="ml">其他題目（挑一個就好）</p>
+        <div class="say say2">幫我做一個個人簡介網頁，放我的名字、興趣、三個作品，風格清爽、可以在瀏覽器打開。</div>
+        <div class="say say2">幫我做一個猜數字小遊戲，1 到 100，會提示大了小了，並記錄我猜了幾次。</div>
+      </div>
+
+
+
+      <div class="adv-card">
+        <p class="seclabel">● 進階挑戰 · 做一個「整合型」作品</p>
+        <h3>結合前面多個主題（瀏覽器＋檔案＋記憶＋聊天）</h3>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <div class="say say2">
+                幫我做一個「每天早上助理」：自動查今天台北天氣、從「openclaw-sample-data/theme6-專案素材/名言佳句.txt」隨機抽一句、整理成一則訊息傳到我的 Telegram。先講計畫再做。
+              </div>
+              <p class="check">✅ 跑一次，手機收到一則整合好的早安訊息。</p>
+            </div>
+          </li>
+        </ol>
+        <p style="margin:12px 0 0"><b>🎤 上台 demo（2–3 分）準備這四點：</b>① 我做了什麼；② 用到哪些能力（瀏覽器／檔案／記憶／聊天／skill）；③ 過程中 Agent
+          犯過什麼錯、我怎麼修好；④ 如果再多一天，我想加什麼。</p>
+      </div>
+
+      <!-- Final Call to Action: Post-test Survey -->
+      <div
+        style="margin-top: 32px; background: var(--raised); border: 2px solid var(--teal); border-radius: 16px; padding: 28px; box-shadow: var(--shadow); text-align: center;">
+        <h3
+          style="color: var(--teal-deep); font-size: 20px; font-weight: 800; margin-bottom: 12px; font-family: var(--sans);">
+          🎉 恭喜你完成了兩天的主題挑戰！</h3>
+        <p style="color: var(--ink-soft); font-size: 15px; margin-bottom: 20px;">在上台發表前，請點擊下方按鈕填寫問卷，回顧你這兩天的成長與心得。</p>
+        <a href="survey-post.html" target="_blank"
+          style="display: inline-block; background: var(--teal-deep); color: white; padding: 14px 28px; border-radius: 10px; font-weight: 700; text-decoration: none; box-shadow: var(--shadow); transition: all 0.2s ease;">
+          👉 前往填寫後測問卷（通關回顧）
+        </a>
+      </div>
+      <!-- ===== Quiz Card Theme 6 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_theme6">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 06 隨堂抽考：終極整合專案</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span>
+              設計一個「英文單字複習小工具」的專案時，如果我們要將學生作答的歷史紀錄（答對/答錯題數）儲存起來以便下次繼續，最適合的方法是？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme6_0" value="0">
+                <span class="opt-text">請 Agent 將紀錄寫入本機的檔案中（如 <code>history.json</code> 或
+                  <code>history.csv</code>）</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme6_0" value="1">
+                <span class="opt-text">依靠 Agent 的暫時性記憶，每次重開再用對話告訴它</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。因為 Agent 重新啟動後會清除記憶快取，要做到「持久化」的狀態記錄，必須將資料寫入實體硬碟檔案（如 JSON/CSV/SQLite）中。"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 在展示（Showcase）自己的整合專案前，最重要的一步是什麼？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme6_1" value="0">
+                <span class="opt-text">進行邊界測試與異常輸入測試，並準備好流暢的示範劇本</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_theme6_1" value="1">
+                <span class="opt-text">確保程式碼的總行數越多越多</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;"
+              data-exp="正確答案為 A。展示的關鍵在於展示專案的「魯棒性」（穩定性）與流暢性。做好極端值輸入測試，並演練好簡報劇本，比起盲目堆疊程式碼更為重要。"></div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_theme6')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_theme6')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <footer>
+      <span>講師：吳政隆教授 · 主辦：<a href="https://bigdata.scu.edu.tw">東吳大學資料科學系</a> · <a
+          href="https://nlp.bigdata.scu.edu.tw">東吳大學自然語言處理實驗室</a></span>
+      <span>6 THEMES · STEP-BY-STEP · QUOTA-AWARE · v4</span>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Inject copy button styles
+    const style = document.createElement("style");
+    style.textContent = `
+      .copy-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.85);
+        border-radius: 6px;
+        padding: 5px;
+        cursor: pointer;
+        opacity: 0.65;
+        transition: opacity 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
+        user-select: none;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .copy-btn:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+      }
+      .copy-btn.copied {
+        opacity: 1;
+        background: #0E7C5A !important;
+        border-color: #0E7C5A !important;
+        color: #fff !important;
+      }
+      @media (prefers-color-scheme: light) {
+        .say .copy-btn {
+          background: rgba(0, 0, 0, 0.05);
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          color: rgba(0, 0, 0, 0.6);
+        }
+        .say .copy-btn:hover {
+          background: rgba(0, 0, 0, 0.12);
+          color: #000;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Select all code blocks (.term and .say)
+    const blocks = document.querySelectorAll(".term, .say");
+
+    blocks.forEach(block => {
+      // Ensure relative positioning
+      block.style.position = "relative";
+
+      const button = document.createElement("button");
+      button.className = "copy-btn";
+      button.type = "button";
+      button.title = "複製內容";
+      button.innerHTML = `
+        <svg class="copy-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <svg class="check-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      `;
+
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        let textToCopy = "";
+        if (block.classList.contains("term")) {
+          const cmElements = block.querySelectorAll(".cm");
+          if (cmElements.length > 0) {
+            textToCopy = Array.from(cmElements).map(el => el.innerText).join("\n");
+          } else {
+            textToCopy = block.innerText
+              .split('\n')
+              .map(line => line.replace(/^(\$\s*|PS>\s*|PS&gt;\s*|›\s*|\>\s*)/gi, ""))
+              .join('\n');
+          }
+        } else {
+          textToCopy = block.innerText;
+        }
+
+        textToCopy = textToCopy.trim();
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          const copySvg = button.querySelector(".copy-svg");
+          const checkSvg = button.querySelector(".check-svg");
+          copySvg.style.display = "none";
+          checkSvg.style.display = "block";
+          button.classList.add("copied");
+
+          setTimeout(() => {
+            copySvg.style.display = "block";
+            checkSvg.style.display = "none";
+            button.classList.remove("copied");
+          }, 2000);
+        }).catch(err => {
+          console.error("Failed to copy:", err);
+        });
+      });
+
+      block.appendChild(button);
+    });
+  });
+</script>
+
+<!-- Universal Quiz Controller Script -->
+<script>
+  (function () {
+    const DEFAULT_SURVEY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwA2O384aMgbu_1T0scyw4BKGoKPNjQ8S2QP6clzyFtRxpoeo_Kr_P-sE4i9s45rPnB9g/exec';
+    const urlParams = new URLSearchParams(window.location.search);
+    const SURVEY_ENDPOINT = urlParams.get('endpoint') || DEFAULT_SURVEY_ENDPOINT;
+
+    const QUIZ_ANSWERS = {
+      'install_guide': [1, 1],
+      'day1_afternoon_warmup': [1, 1],
+      'day1_afternoon_prompt': [0, 1],
+      'day1_afternoon_debugging': [1, 2],
+      'day1_afternoon_challenge': [0],
+      'day2_theme1': [0, 1],
+      'day2_theme2': [0, 1],
+      'day2_theme3': [0, 0],
+      'day2_theme4': [0, 0],
+      'day2_theme5': [0, 0],
+      'day2_theme6': [0, 0],
+      'day2_adv_topic1': [0, 0],
+      'day2_adv_topic2': [0, 0],
+      'day2_adv_topic3': [0, 0]
+    };
+
+    window.checkQuiz = function (quizId) {
+      const card = document.querySelector(`.quiz-card[data-quiz-id="${quizId}"]`);
+      if (!card) return;
+
+      const correctAns = QUIZ_ANSWERS[quizId];
+      if (!correctAns) return;
+
+      let allAnswered = true;
+      let score = 0;
+      const studentAnswers = [];
+
+      const qDivs = card.querySelectorAll('.quiz-q');
+      qDivs.forEach((qDiv, qIdx) => {
+        const selectedOpt = qDiv.querySelector('input[type="radio"]:checked');
+        if (!selectedOpt) {
+          allAnswered = false;
+          return;
+        }
+
+        const chosenVal = parseInt(selectedOpt.value, 10);
+        studentAnswers.push(chosenVal);
+        const isCorrect = (chosenVal === correctAns[qIdx]);
+        if (isCorrect) score++;
+
+        const optLabels = qDiv.querySelectorAll('.quiz-opt');
+        optLabels.forEach((label, optIdx) => {
+          label.classList.remove('opt-correct', 'opt-incorrect');
+          if (optIdx === correctAns[qIdx]) {
+            label.classList.add('opt-correct');
+          } else if (optIdx === chosenVal) {
+            label.classList.add('opt-incorrect');
+          }
+        });
+
+        const feedbackBlock = qDiv.querySelector('.quiz-feedback');
+        if (feedbackBlock) {
+          feedbackBlock.style.display = 'block';
+          feedbackBlock.className = `quiz-feedback ${isCorrect ? 'fb-correct' : 'fb-incorrect'}`;
+          const prefix = isCorrect ? '🎉 答對了！' : '❌ 答錯囉，再想想看！';
+          const expText = feedbackBlock.getAttribute('data-exp') || '';
+          feedbackBlock.innerHTML = `<strong>${prefix}</strong> ${expText}`;
+        }
+      });
+
+      if (!allAnswered) {
+        alert('請先答完所有題目再進行檢查！');
+        return;
+      }
+
+      const submitBtn = card.querySelector('.submit-btn');
+      if (submitBtn) {
+        submitBtn.style.display = 'inline-block';
+      }
+
+      const statusMsg = card.querySelector('.quiz-status-msg');
+      if (statusMsg) {
+        statusMsg.textContent = `檢查完成！您的得分：${score} / ${correctAns.length}`;
+      }
+
+      card.setAttribute('data-score', score);
+      card.setAttribute('data-answers', JSON.stringify(studentAnswers));
+    };
+
+    window.submitQuiz = function (quizId) {
+      const card = document.querySelector(`.quiz-card[data-quiz-id="${quizId}"]`);
+      if (!card) return;
+
+      const score = card.getAttribute('data-score');
+      const answers = card.getAttribute('data-answers');
+      if (score === null || answers === null) {
+        alert('請先完成檢查答案後再送出成績！');
+        return;
+      }
+
+      let studentName = localStorage.getItem('openclaw_student_name') || '';
+      showQuizModal(quizId, score, answers, studentName);
+    };
+
+    function showQuizModal(quizId, score, answers, studentName) {
+      let modal = document.getElementById('quizResultModal');
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'quizResultModal';
+        modal.className = 'quiz-modal';
+        modal.innerHTML = `
+        <div class="quiz-modal-content">
+          <div class="quiz-modal-title">📝 送出測驗成績</div>
+          <div class="quiz-modal-desc" id="quizModalDesc">請輸入您的姓名或暱稱，以將本次測驗成績送出存檔：</div>
+          <input type="text" id="quizStudentName" class="quiz-name-input" placeholder="例如：王小明">
+          <div class="quiz-json-box" id="quizJsonDisplay" style="display:none;"></div>
+          <button class="quiz-modal-btn" id="quizModalSubmitBtn">確認送出</button>
+          <button class="quiz-modal-btn" id="quizModalCloseBtn" style="background:#7C837E; margin-top:8px;">關閉</button>
+        </div>
+      `;
+        document.body.appendChild(modal);
+
+        document.getElementById('quizModalCloseBtn').onclick = function () {
+          modal.classList.remove('active');
+        };
+      }
+
+      const nameInput = document.getElementById('quizStudentName');
+      nameInput.value = studentName;
+      nameInput.style.display = 'block';
+
+      const descText = document.getElementById('quizModalDesc');
+      descText.innerHTML = `請輸入您的姓名或暱稱，以將本次測驗成績（單元：<code>${quizId}</code>，得分：<code>${score}</code>）送出存檔：`;
+
+      const jsonBox = document.getElementById('quizJsonDisplay');
+      jsonBox.style.display = 'none';
+
+      const submitBtn = document.getElementById('quizModalSubmitBtn');
+      submitBtn.style.display = 'block';
+      submitBtn.onclick = function () {
+        const enteredName = nameInput.value.trim();
+        if (!enteredName) {
+          alert('請輸入姓名或暱稱！');
+          return;
+        }
+        localStorage.setItem('openclaw_student_name', enteredName);
+
+        const payload = {
+          student_name: enteredName,
+          quiz_id: quizId,
+          score: parseInt(score, 10),
+          answers: JSON.parse(answers),
+          survey_type: `quiz_${quizId}`,
+          timestamp: new Date().toISOString()
+        };
+
+        if (SURVEY_ENDPOINT && SURVEY_ENDPOINT !== 'https://script.google.com/macros/s/AKfycbwA2O384aMgbu_1T0scyw4BKGoKPNjQ8S2QP6clzyFtRxpoeo_Kr_P-sE4i9s45rPnB9g/exec') {
+          const searchParams = new URLSearchParams();
+          searchParams.append('payload', JSON.stringify(payload));
+
+          descText.innerHTML = `正在送出成績...`;
+          submitBtn.style.display = 'none';
+          nameInput.style.display = 'none';
+
+          fetch(SURVEY_ENDPOINT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: searchParams
+          })
+            .then(() => {
+              descText.innerHTML = `🎉 成績上傳成功！感謝您的參與。`;
+            })
+            .catch(err => {
+              console.error('Quiz submit error:', err);
+              descText.innerHTML = `💡 上傳發生錯誤，以下為您的測驗 JSON 資料，您可以複製給助教：`;
+              jsonBox.style.display = 'block';
+              jsonBox.textContent = JSON.stringify(payload, null, 2);
+            });
+        } else {
+          descText.innerHTML = `💡 <b>提示</b>：後端接收端點（SURVEY_ENDPOINT）為預設值或未設定。<br>在本機開發模式下，以下是打包好的作答 JSON 數據：`;
+          nameInput.style.display = 'none';
+          submitBtn.style.display = 'none';
+          jsonBox.style.display = 'block';
+          jsonBox.textContent = JSON.stringify(payload, null, 2);
+        }
+      };
+
+      modal.classList.add('active');
+    }
+  })();
+</script>

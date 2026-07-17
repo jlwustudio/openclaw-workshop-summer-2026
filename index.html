@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 召喚師：從使用 AI，到指揮 AI · 教材導覽首頁</title>
+  <style>
+    :root {
+      --paper: #F1F2EF;
+      --raised: #FBFCFA;
+      --ink: #191B1A;
+      --ink-soft: #4A514D;
+      --ink-faint: #7C837E;
+      --line: #DCDFD9;
+      --line-soft: #E7E9E4;
+      --teal: #0E7C7B;
+      --teal-deep: #0A5C5B;
+      --teal-wash: #E2EEED;
+      --amber: #C9820A;
+      --amber-bright: #E9A020;
+      --amber-wash: #F7EBD3;
+      --shadow: 0 1px 2px rgba(25, 27, 26, .05), 0 8px 22px -12px rgba(25, 27, 26, .18);
+      --shadow-hover: 0 4px 10px rgba(25, 27, 26, .08), 0 20px 38px -12px rgba(25, 27, 26, .18);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, "Cascadia Mono", "Roboto Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    header.mast {
+      padding: 64px 0 36px;
+      border-bottom: 2px solid var(--ink);
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--teal-deep);
+      margin: 0 0 16px;
+      font-weight: 700;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .brand svg {
+      width: 32px;
+      height: 32px;
+      color: var(--teal);
+    }
+
+    .brand b {
+      font-family: var(--mono);
+      font-size: 16px;
+      letter-spacing: .02em;
+    }
+
+    .brand b span {
+      color: var(--teal);
+    }
+
+    h1 {
+      font-size: clamp(32px, 6vw, 48px);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      font-weight: 800;
+      margin: 12px 0 16px;
+      text-wrap: balance;
+    }
+
+    .lead {
+      margin: 18px auto 0;
+      font-size: 18px;
+      color: var(--ink-soft);
+      max-width: 68ch;
+      text-wrap: balance;
+    }
+
+    /* Grid layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 48px;
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .card.full-width {
+        grid-column: span 2;
+      }
+    }
+
+    /* Card styling */
+    .card {
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--teal);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: var(--teal);
+    }
+
+    .card:hover::before {
+      opacity: 1;
+    }
+
+    .card.accent::before {
+      background: var(--amber);
+    }
+
+    .card.accent:hover {
+      border-color: var(--amber);
+    }
+
+    .card-top h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-top p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .card-meta {
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-family: var(--mono);
+      color: var(--ink-faint);
+    }
+
+    .card-meta span {
+      background: var(--line-soft);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+      color: var(--ink-soft);
+    }
+
+    .arrow {
+      color: var(--teal);
+      font-weight: 700;
+      font-size: 16px;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover .arrow {
+      transform: translateX(4px);
+    }
+
+    .card.accent .arrow {
+      color: var(--amber);
+    }
+
+    /* Info Section */
+    .info-section {
+      margin-top: 56px;
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .info-section h3 {
+      margin: 0 0 16px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--teal-deep);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .info-section p {
+      margin: 0 0 16px;
+      font-size: 15px;
+      color: var(--ink-soft);
+    }
+
+    .info-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-section b {
+      color: var(--ink);
+    }
+
+    .info-section a {
+      color: var(--teal-deep);
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+    }
+
+    .info-section a:hover {
+      color: var(--teal);
+    }
+
+    code.inline {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--line-soft);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 6px;
+      color: var(--ink);
+    }
+
+    footer {
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--ink-faint);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    footer a {
+      color: var(--teal-deep);
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+    }
+
+    footer a:hover {
+      color: var(--teal);
+    }
+
+    #ultimate-challenge-card {
+      display: none;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="mast">
+      <p class="eyebrow">AI 召喚師：從使用 AI，到指揮 AI</p>
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v6" />
+          <path d="M12 9c-2 0-3 1-3.5 3l-1 5" />
+          <path d="M12 9c2 0 3 1 3.5 3l1 5" />
+          <path d="M12 9v6" />
+          <circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none" />
+        </svg>
+        <b>open<span>claw</span> · 工作坊教材導覽</b>
+      </div>
+      <h1>掌握 AI 助理，讓 AI 為你動手做事</h1>
+      <p class="lead">歡迎來到「AI 召喚師」工作坊！這是一個專為高中生設計的兩天實作課程。在這裡，你將把 AI
+        從「只能一問一答的聊天對象」升級為「有手有腳、會用工具的本機助理」。請點選下方卡片進入各時段的教學與實作單。</p>
+      <p style="margin-top: 12px; font-size: 15px; color: var(--ink-soft); font-weight: 500;">講師：東吳大學資料科學系 <b>吳政隆 教授</b>
+      </p>
+    </header>
+
+    <main>
+      <div class="grid">
+        <!-- Card 1 -->
+        <a href="survey-pre.html" class="card full-width" style="border: 2px solid var(--teal);">
+          <div class="card-top">
+            <h2><span>01</span> 起跑檢查：前測問卷</h2>
+            <p><b>Day 1 開始前請先填寫</b>，讓我們更了解您！包含對 AI 工具的熟悉度、電腦操作經驗與對 Agent 的第一直覺。（內含一則手機 Telegram 課前準備提醒。）</p>
+          </div>
+          <div class="card-meta">
+            <span>起跑檢查</span>
+            <div class="arrow">開始填寫 &rarr;</div>
+          </div>
+        </a>
+
+        <!-- Card 2 -->
+        <a href="openclaw-day1-concepts-slides.pdf" class="card">
+          <div class="card-top">
+            <h2><span>02</span> 觀念大腦：AI 召喚術投影片</h2>
+            <p>下載第一天上午的簡報。帶你快速建立大型語言模型（LLM）、AI Agent 與 Agentic AI 的正確直覺，認識 OpenClaw 系統架構，並掌握 AI 教室使用安全規範。</p>
+          </div>
+          <div class="card-meta">
+            <span>Day 1 上午</span>
+            <div class="arrow">下載簡報 &rarr;</div>
+          </div>
+        </a>
+
+        <!-- Card 3 -->
+        <a href="openclaw-install-guide.html" class="card">
+          <div class="card-top">
+            <h2><span>03</span> 裝備整備：AI 助理安裝指南</h2>
+            <p>約需 30-45 分鐘。一步步帶你進行安裝前體檢，認識免費的雲端大腦 Ollama Cloud，完成登入並使用 <code>ollama launch openclaw</code> 一鍵啟動你的專屬助理。
+            </p>
+          </div>
+          <div class="card-meta">
+            <span>Day 1 上午</span>
+            <div class="arrow">開始安裝 &rarr;</div>
+          </div>
+        </a>
+
+        <!-- Card 4 -->
+        <a href="openclaw-day1-afternoon.html" class="card">
+          <div class="card-top">
+            <h2><span>04</span> 新手實彈：大腦對接與指令秘笈</h2>
+            <p>下午換你當指揮官！練習與 AI 助理的第一次親密接觸，掌握指令三要素，指揮 Agent 在桌面讀寫檔案並學會除錯與把關。</p>
+          </div>
+          <div class="card-meta">
+            <span>Day 1 下午</span>
+            <div class="arrow">進入實作 &rarr;</div>
+          </div>
+        </a>
+
+        <!-- Card 5 -->
+        <a href="openclaw-day2-worksheets.html" class="card accent">
+          <div class="card-top">
+            <h2><span>05</span> 高階召喚：六大自動化主題挑戰</h2>
+            <p>解鎖六大主題：網頁自動化、檔案分類魔法、心靈記憶客製、手機 Telegram 遙控、超級 Skill 外掛以及終極專案舞台展示。</p>
+          </div>
+          <div class="card-meta">
+            <span>Day 2 全天</span>
+            <div class="arrow">挑戰進階 &rarr;</div>
+          </div>
+        </a>
+
+        <!-- Card 6 -->
+        <a href="openclaw-advanced-topics.html" id="ultimate-challenge-card" class="card full-width accent"
+          style="border: 2px dashed var(--amber);">
+          <div class="card-top">
+            <h2><span>06</span> 終極挑戰：進階延伸教材</h2>
+            <p>特別為進度快的學員設計！解鎖三個維運與開發大師的主題：多重代理指揮官（執行多個 Gateway）、自製 API 服務端點以及遠端存取與 SSH 隧道。</p>
+          </div>
+          <div class="card-meta">
+            <span>延伸挑戰</span>
+            <div class="arrow">解鎖大師主題 &rarr;</div>
+          </div>
+        </a>
+      </div>
+
+      <script>
+        document.addEventListener("DOMContentLoaded", () => {
+          const card = document.getElementById("ultimate-challenge-card");
+          const trigger = document.querySelector(".brand");
+
+          // 檢查 URL 參數是否包含 mode=advanced 或 master=true
+          const urlParams = new URLSearchParams(window.location.search);
+          const isMaster = urlParams.has("master") || urlParams.get("mode") === "advanced";
+
+          if (isMaster) {
+            card.style.display = "flex";
+          }
+
+          // 點擊 5 次觸發彩蛋
+          let clickCount = 0;
+          if (trigger && card) {
+            trigger.style.cursor = "pointer";
+            trigger.addEventListener("click", () => {
+              clickCount++;
+              if (clickCount === 5) {
+                card.style.display = "flex";
+                card.style.animation = "fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+
+                // 彈出提示
+                const toast = document.createElement("div");
+                toast.textContent = "🔓 已解鎖 06 終極挑戰：進階延伸教材！";
+                toast.style.position = "fixed";
+                toast.style.bottom = "24px";
+                toast.style.left = "50%";
+                toast.style.transform = "translateX(-50%)";
+                toast.style.background = "var(--teal-deep)";
+                toast.style.color = "#fff";
+                toast.style.padding = "12px 24px";
+                toast.style.borderRadius = "8px";
+                toast.style.fontSize = "14.5px";
+                toast.style.fontWeight = "600";
+                toast.style.boxShadow = "0 4px 12px rgba(0, 0, 0, 0.15)";
+                toast.style.zIndex = "9999";
+                document.body.appendChild(toast);
+
+                setTimeout(() => {
+                  toast.style.transition = "opacity 0.5s";
+                  toast.style.opacity = "0";
+                  setTimeout(() => toast.remove(), 500);
+                }, 5000);
+              }
+            });
+          }
+        });
+      </script>
+
+      <section class="info-section">
+        <h3>💡 上機操作小提醒</h3>
+        <p><b>工作目錄（workspace）：</b>OpenClaw 的 Agent 預設以它自己的 workspace 資料夾（<code
+            class="inline">~/.openclaw/workspace</code>）作為工作目錄，<b>與你在終端機的哪個位置啟動無關</b>。開始 Day 2 實作前，請先把 <code
+            class="inline">openclaw-sample-data</code> 複製進 workspace（安裝教學 Part C 有完整步驟），Agent 才能用相對路徑直接讀到範例素材。想先看每個主題配哪個檔、該對 Agent 說什麼，可查閱<a
+            href="openclaw-sample-data-index.html">範例檔案總覽</a>。</p>
+        <p><b>安全防護：</b>OpenClaw 會讀寫你電腦中的檔案並執行指令，在執行刪除、發送訊息或可能不可逆的動作時，記得請 Agent
+          <b>「先講計畫，經過我同意後再動手」</b>。你擁有最高指揮權，隨時可以切斷執行。
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <span>講師：吳政隆教授 · 主辦單位：<a href="https://bigdata.scu.edu.tw" target="_blank">東吳大學資料科學系</a> · <a
+          href="https://nlp.bigdata.scu.edu.tw" target="_blank">東吳大學自然語言處理實驗室</a></span>
+      <span>OPENCLAW WORKSHOP · LANDING PAGE · v1</span>
+    </footer>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Advanced · 終極挑戰：進階延伸實作手冊</title>
+  <style>
+    :root {
+      --paper: #F1F2EF;
+      --raised: #FBFCFA;
+      --ink: #191B1A;
+      --ink-soft: #4A514D;
+      --ink-faint: #7C837E;
+      --line: #DCDFD9;
+      --line-soft: #E7E9E4;
+      --teal: #0E7C7B;
+      --teal-deep: #0A5C5B;
+      --teal-wash: #E2EEED;
+      --amber: #C9820A;
+      --amber-bright: #E9A020;
+      --amber-wash: #F7EBD3;
+      --term-bg: #12211F;
+      --term-ink: #D9E6E2;
+      --shadow: 0 1px 2px rgba(25, 27, 26, .05), 0 8px 22px -12px rgba(25, 27, 26, .18);
+      --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, "Cascadia Mono", "Roboto Mono", monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    .page {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    header.mast {
+      padding: 52px 0 24px;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--teal-deep);
+      margin: 0 0 12px;
+    }
+    .backlink {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--teal-deep);
+      border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+      text-transform: uppercase;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand svg {
+      width: 30px;
+      height: 30px;
+      color: var(--teal);
+    }
+
+    .brand b {
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+
+    .brand b span {
+      color: var(--teal);
+    }
+
+    h1 {
+      font-size: clamp(30px, 5.5vw, 46px);
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      font-weight: 800;
+      margin: 18px 0 0;
+      text-wrap: balance;
+    }
+
+    .lead {
+      margin: 14px 0 0;
+      font-size: 17px;
+      color: var(--ink-soft);
+      max-width: 66ch;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .chip.base {
+      background: var(--teal-wash);
+      color: var(--teal-deep);
+    }
+
+    .chip.adv {
+      background: var(--amber-wash);
+      color: var(--amber);
+    }
+
+    .legend {
+      margin: 22px 0 6px;
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .legend h2 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-family: var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--teal-deep);
+    }
+
+    .legend ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .legend li {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 12px;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      align-items: baseline;
+    }
+
+    .legend .k {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .legend .k.k-say {
+      background: var(--term-bg);
+      color: var(--term-ink);
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .legend .k.see {
+      color: var(--teal-deep);
+    }
+
+    .legend .k.ok {
+      color: var(--teal-deep);
+    }
+
+    .theme {
+      margin-top: 34px;
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .thead {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      border-bottom: 1px solid var(--line-soft);
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+    }
+
+    .tno {
+      flex: none;
+      width: 52px;
+      height: 52px;
+      border-radius: 13px;
+      background: var(--teal);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+    }
+
+    .tno small {
+      font-size: 9px;
+      font-weight: 400;
+      opacity: .85;
+    }
+
+    .thead .tt {
+      flex: 1;
+    }
+
+    .thead h2 {
+      margin: 0;
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -.01em;
+    }
+
+    .thead .goal {
+      margin: 5px 0 0;
+      font-size: 14.5px;
+      color: var(--ink-soft);
+    }
+
+    .thead .time {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--amber);
+      white-space: nowrap;
+      margin-top: 4px;
+      display: inline-block;
+    }
+
+    .prep {
+      background: var(--teal-wash);
+      border: 1px solid color-mix(in srgb, var(--teal) 22%, transparent);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-size: 13.5px;
+      color: var(--ink);
+      margin: 0 0 18px;
+    }
+
+    .prep b {
+      color: var(--teal-deep);
+    }
+
+    .seclabel {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin: 0 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--teal-deep);
+    }
+
+    .tasktitle {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0 0 10px;
+    }
+
+    .walk {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 4px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .walk>li {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .wn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--teal);
+      color: #fff;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    /* ================= Unified Terminal & Dialogue Block Styles ================= */
+    /* 1. Terminal Block base style (維持深色，等同程式碼區塊) */
+    .term {
+      position: relative;
+      background: #1c1c1c;
+      /* Default common dark charcoal */
+      border: 1px solid #2d2d2d;
+      border-radius: 11px;
+      padding: 14px 16px;
+      margin: 6px 0 10px;
+      overflow-x: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .term.labeled {
+      padding-top: 32px;
+    }
+
+    .term.labeled::before,
+    .term::before {
+      position: absolute;
+      left: 16px;
+      top: 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    /* macOS Terminal */
+    .term.macos {
+      background: #1e2530 !important;
+      border: 1px solid #2a3545 !important;
+    }
+
+    .term.macos::before {
+      content: "終端機（macOS）輸入 ›" !important;
+      color: #A3D8F4 !important;
+    }
+
+    /* Windows PowerShell */
+    .term.windows {
+      background: #0c1a30 !important;
+      border: 1px solid #1a2f52 !important;
+    }
+
+    .term.windows::before {
+      content: "PowerShell（Windows）輸入 ›" !important;
+      color: #EBC17A !important;
+    }
+
+    /* Common Terminal */
+    .term.common {
+      background: #1c1c1c !important;
+      border: 1px solid #2d2d2d !important;
+    }
+
+    .term.common::before {
+      content: "終端機（macOS / Windows）輸入 ›" !important;
+      color: #A3D8F4 !important;
+    }
+
+    /* Chat prompt inside term class */
+    .term.chat {
+      background: #112220 !important;
+      border: 1px solid #1d3b37 !important;
+    }
+
+    .term.chat::before {
+      content: "對 OpenClaw 助理說 ›" !important;
+      color: #6FBFA0 !important;
+    }
+
+    /* Code elements inside term */
+    .term code {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--term-ink);
+      white-space: pre;
+      display: block;
+      line-height: 1.7;
+    }
+
+    .term .pr {
+      color: #6FBFA0;
+    }
+
+    .term .cm {
+      color: #EBC17A;
+    }
+
+    .term .ok {
+      color: #7FD1A8;
+    }
+
+    .term .cmt {
+      color: #8AA39B;
+    }
+
+    /* 2. Dialogue / Chat Block (對話區塊，與終端機區分) */
+    .say {
+      background: #112220;
+      /* Default chat dark teal */
+      border: 1px solid #1d3b37;
+      border-radius: 9px;
+      padding: 32px 13px 9px 13px;
+      position: relative;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--term-ink);
+      line-height: 1.55;
+      overflow-wrap: break-word;
+    }
+
+    .say::before {
+      content: "對 OpenClaw 助理說 ›";
+      position: absolute;
+      left: 13px;
+      top: 10px;
+      color: #6FBFA0;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: .02em;
+      writing-mode: horizontal-tb;
+      display: block;
+    }
+
+    /* Dialogue variations */
+    .say.terminal {
+      background: #1c1c1c !important;
+      border: 1px solid #2d2d2d !important;
+    }
+
+    .say.terminal::before {
+      content: "終端機（macOS / Windows）輸入 ›" !important;
+      color: #A3D8F4 !important;
+    }
+
+    .say.mybot::before {
+      content: "對 OpenClaw 助理說 ›" !important;
+      color: #6FBFA0 !important;
+    }
+
+    .say.say2::before {
+      content: "對 OpenClaw 助理說 ›" !important;
+      color: #6FBFA0 !important;
+    }
+
+    .say.config {
+      background: #251c10 !important;
+      border: 1px solid #3d2f1c !important;
+    }
+
+    .say.config::before {
+      content: "設定檔內容 ›" !important;
+      color: #E9A020 !important;
+    }
+
+    /* 手打指令框樣式 */
+    .say-manual {
+      background: #0f1917 !important;
+      border: 1px dashed rgba(233, 160, 32, 0.4) !important;
+      border-radius: 9px;
+      padding: 32px 13px 9px 13px;
+      position: relative;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #cbdad5 !important;
+      line-height: 1.55;
+      overflow-wrap: break-word;
+      margin: 12px 0;
+    }
+
+    .say-manual::before {
+      content: "手打輸入 ›" !important;
+      position: absolute;
+      left: 13px;
+      top: 10px;
+      color: var(--amber-bright) !important;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: .02em;
+    }
+
+    .expect {
+      margin: 7px 0 3px;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+    }
+
+    .expect b {
+      color: var(--ink);
+    }
+
+    .check {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--teal-deep);
+      font-weight: 600;
+    }
+
+    .substep {
+      margin: 6px 0 0 0;
+      font-size: 13px;
+      color: var(--ink-faint);
+    }
+
+    .more {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .more .ml {
+      font-size: 12.5px;
+      color: var(--ink-faint);
+      margin: 0 0 8px;
+      font-family: var(--mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .more .say {
+      margin-bottom: 7px;
+    }
+
+    .gotcha {
+      margin-top: 16px;
+      border-left: 3px solid var(--amber-bright);
+      background: var(--amber-wash);
+      padding: 11px 15px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+    }
+
+    .gotcha b {
+      color: var(--amber);
+    }
+
+    .safety {
+      margin-top: 16px;
+      border-left: 3px solid var(--amber-bright);
+      background: var(--amber-wash);
+      padding: 11px 15px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14px;
+    }
+
+    .safety b {
+      color: var(--amber);
+    }
+
+    .tip {
+      margin-top: 14px;
+      border-left: 3px solid var(--amber-bright);
+      background: var(--amber-wash);
+      padding: 11px 15px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+    }
+
+    .tip b {
+      color: var(--amber);
+    }
+
+    .budget {
+      margin-top: 14px;
+      border-left: 3px solid var(--teal);
+      background: var(--teal-wash);
+      padding: 11px 15px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+      color: var(--ink);
+    }
+
+    .budget b {
+      color: var(--teal-deep);
+    }
+
+    .quota {
+      margin: 22px 0 6px;
+      background: var(--amber-wash);
+      border: 1px solid color-mix(in srgb, var(--amber) 34%, transparent);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .quota h2 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-family: var(--mono);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .quota ul {
+      margin: 0;
+      padding: 0 0 0 2px;
+      list-style: none;
+      display: grid;
+      gap: 9px;
+    }
+
+    .quota li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 9px;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      align-items: start;
+    }
+
+    .quota li b {
+      color: var(--ink);
+    }
+
+    .quota .ic {
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .adv-card {
+      margin-top: 18px;
+      background: var(--amber-wash);
+      border: 1px solid color-mix(in srgb, var(--amber) 36%, transparent);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .adv-card .seclabel {
+      color: var(--amber);
+      margin-bottom: 8px;
+    }
+
+    .adv-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .adv-card p {
+      margin: 0 0 10px;
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+
+    .adv-card .say {
+      background: color-mix(in srgb, var(--term-bg) 92%, var(--amber));
+    }
+
+    .adv-card .wn {
+      background: var(--amber-bright);
+      color: #3A2A05;
+    }
+
+    .adv-card .check {
+      color: #8a5a06;
+    }
+
+    code.inline {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: var(--line-soft);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 6px;
+      color: var(--ink);
+    }
+
+    .code-block {
+      background: var(--term-bg);
+      border-radius: 9px;
+      padding: 14px;
+      font-family: var(--mono);
+      font-size: 12.5px;
+      color: var(--term-ink);
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre;
+      margin: 10px 0;
+      border: 1px solid var(--line);
+      tab-size: 2;
+    }
+
+    footer {
+      margin-top: 52px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-faint);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    footer a {
+      color: var(--teal-deep);
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+    }
+
+    @media (max-width: 640px) {
+      .theme {
+        padding: 18px 16px;
+      }
+
+      .legend li {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+
+      .walk>li {
+        grid-template-columns: 24px 1fr;
+        gap: 9px;
+      }
+    }
+  }
+
+  /* Quiz Card CSS Styles */
+  .quiz-card {
+    background: var(--raised);
+    border: 2px solid var(--teal);
+    border-radius: 16px;
+    padding: 24px;
+    margin: 32px 0;
+    box-shadow: var(--shadow);
+  }
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 12px;
+  }
+  .quiz-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--teal-deep);
+    font-weight: 700;
+  }
+  .quiz-icon {
+    font-size: 22px;
+  }
+  .quiz-q {
+    margin-bottom: 24px;
+  }
+  .quiz-q:last-child {
+    margin-bottom: 16px;
+  }
+  .quiz-q-title {
+    font-weight: 700;
+    font-size: 15.5px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    color: var(--ink);
+  }
+  .q-badge {
+    background: var(--teal-wash);
+    color: var(--teal-deep);
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .quiz-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14.5px;
+    transition: all 0.2s ease;
+    color: var(--ink-soft);
+  }
+  .quiz-opt:hover {
+    background: var(--line-soft);
+    border-color: var(--ink-faint);
+  }
+  .quiz-opt input[type="radio"], .quiz-opt input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    accent-color: var(--teal);
+  }
+  .quiz-opt.opt-correct {
+    background: #E2EEED !important;
+    border-color: #0E7C7B !important;
+    color: #0A5C5B !important;
+    font-weight: 600;
+  }
+  .quiz-opt.opt-incorrect {
+    background: #F8E6D2 !important;
+    border-color: #B4560A !important;
+    color: #8C3E05 !important;
+  }
+  .quiz-feedback {
+    margin-top: 10px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .quiz-feedback.fb-correct {
+    background: #E2EEED;
+    border-left: 4px solid #0E7C7B;
+    color: #0A5C5B;
+  }
+  .quiz-feedback.fb-incorrect {
+    background: #F8E6D2;
+    border-left: 4px solid #B4560A;
+    color: #8C3E05;
+  }
+  .quiz-footer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    flex-wrap: wrap;
+  }
+  .quiz-btn {
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .quiz-btn.check-btn {
+    background: var(--teal);
+    color: #fff;
+  }
+  .quiz-btn.check-btn:hover {
+    background: var(--teal-deep);
+  }
+  .quiz-btn.submit-btn {
+    background: var(--amber);
+    color: #fff;
+  }
+  .quiz-btn.submit-btn:hover {
+    background: #A36908;
+  }
+  .quiz-status-msg {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+  
+  /* Modal styling for quiz submit */
+  .quiz-modal {
+    display: none;
+    position: fixed;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: rgba(25, 27, 26, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .quiz-modal.active {
+    display: flex;
+    opacity: 1;
+  }
+  .quiz-modal-content {
+    background: var(--raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    max-width: 480px;
+    width: 100%;
+    padding: 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+  }
+  .quiz-modal.active .quiz-modal-content {
+    transform: translateY(0);
+  }
+  .quiz-modal-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--teal-deep);
+  }
+  .quiz-modal-desc {
+    font-size: 15px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .quiz-json-box {
+    background: var(--term-bg);
+    color: var(--term-ink);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    max-height: 180px;
+    margin-bottom: 20px;
+    white-space: pre;
+    text-align: left;
+  }
+  .quiz-modal-btn {
+    background: var(--teal);
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14.5px;
+    width: 100%;
+    transition: background 0.2s;
+  }
+  .quiz-modal-btn:hover {
+    background: var(--teal-deep);
+  }
+  .quiz-name-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid var(--line);
+    border-radius: 8px;
+    font-family: var(--sans);
+    font-size: 14.5px;
+    margin-bottom: 16px;
+    background: var(--raised);
+    color: var(--ink);
+    outline: none;
+  }
+  .quiz-name-input:focus {
+    border-color: var(--teal);
+  }
+  .svg-diagram {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 24px auto;
+    background: var(--raised);
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  /* Quick Navigation Bar styles */
+  .quick-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 20px 0;
+    padding: 12px 16px;
+    background: var(--paper);
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    list-style: none;
+    align-items: center;
+  }
+  .quick-nav-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--teal-deep);
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .quick-nav-item {
+    font-size: 13px;
+    font-family: var(--sans);
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--raised);
+    border: 1px solid var(--line-soft);
+    transition: all 0.2s ease;
+    font-weight: 600;
+  }
+  .quick-nav-item:hover {
+    background: var(--teal-wash);
+    border-color: var(--teal);
+    color: var(--teal-deep);
+  }
+</style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="wrap">
+      <header class="mast">
+        <p class="eyebrow">AI 召喚師：從使用 AI，到指揮 AI</p>
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+          <div class="brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3v6" />
+              <path d="M12 9c-2 0-3 1-3.5 3l-1 5" />
+              <path d="M12 9c2 0 3 1 3.5 3l1 5" />
+              <path d="M12 9v6" />
+              <circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none" />
+            </svg>
+            <b>open<span>claw</span> · 終極挑戰：進階延伸實作手冊</b>
+          </div>
+          <a href="index.html" class="backlink">&larr; 回首頁</a>
+        </div>
+        <h1>解鎖 OpenClaw Gateway 與維運奧秘</h1>
+        <p class="lead">此頁面為進階學員準備。在這裡，你將跳脫一般使用者的視角，深入 AI 代理程式的核心——閘道服務（Gateway），練習管理多個 Agent、串接外部 API 以及配置遠端存取通道。</p>
+
+        <!-- Quick Navigation Index -->
+        <nav class="quick-nav">
+          <span class="quick-nav-title">📍 快速索引：</span>
+          <a href="#theme-7" class="quick-nav-item">主題 07 多重代理指揮官</a>
+          <a href="#theme-8" class="quick-nav-item">主題 08 自製 AI 服務端點</a>
+          <a href="#theme-9" class="quick-nav-item">主題 09 AI 雲端任意門</a>
+        </nav>
+        <div class="legend">
+          <h2>怎麼讀每一步</h2>
+          <ul>
+            <li><span class="k k-say">在終端機 ›</span><span>要在終端機輸入執行的 CLI 指令。</span></li>
+            <li><span class="k k-say" style="background:#12211F; color:#E9A020;">對 OpenClaw 助理說 ›</span><span>深色框＝與 Agent
+                聊天視窗中，直接對 OpenClaw 說的話。</span></li>
+            <li><span class="k see">👀 你會看到</span><span>接下來終端機或聊天畫面上，大概會出現的反應。</span></li>
+            <li><span class="k ok">✅ 確認</span><span>怎麼判斷這一步真的成功了，再往下一步。</span></li>
+          </ul>
+        </div>
+      </header>
+
+      <!-- ===== Theme 7 ===== -->
+      <section class="theme">
+        <div class="thead">
+          <div class="tno">主題<span>07</span></div>
+          <div class="tt">
+            <h2 id="theme-7">多重代理指揮官 —— 同時操控多個 Gateway</h2>
+            <p class="goal">練習在同一台主機上啟動兩個不同設定、且完全隔離的 AI 背景服務。</p>
+            <span class="time">延伸挑戰 A</span>
+          </div>
+        </div>
+        <div class="prep"><b>🧰 事前準備：</b>確保你能在終端機正常呼叫 <code
+            class="inline">openclaw</code>。這個主題會用到<b>環境變數</b>來指定不同的設定檔與狀態目錄，讓兩個閘道互不干涉。</div>
+
+        <p class="seclabel base">● 基礎實作 · 設定與執行多個閘道實例</p>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <p class="expect"><b>先幫第二個閘道準備一份獨立設定檔。</b>直接複製一份你現有的設定，改名為 <code class="inline">b.json</code>：</p>
+              <div class="say">cp ~/.openclaw/openclaw.json ~/.openclaw/b.json</div>
+              <p class="expect">👀 <b>你會看到：</b>指令沒有任何輸出就是成功了。現在 <code class="inline">~/.openclaw/</code> 底下多了一個 <code
+                  class="inline">b.json</code>。</p>
+              <p class="check">✅ 確認：輸入 <code class="inline">ls ~/.openclaw/</code>，清單裡看得到 <code
+                  class="inline">b.json</code>。</p>
+              <p class="substep">💡 如果你的主設定檔叫別的名字（例如 <code class="inline">config.json</code>），把上面的來源檔名換掉即可；不確定的話對 Agent
+                說「幫我找出 openclaw 的設定檔在哪」。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <div class="say">openclaw gateway --port 19001</div>
+              <p class="expect">👀 <b>你會看到：</b>閘道在前景啟動，並在連接埠 19001 開始監聽。它會輸出啟動日誌，表示正在等待客戶端連線。</p>
+              <p class="check">✅ 確認：終端機停在此畫面，沒有報錯，且顯示類似 <code class="inline">Listening on 127.0.0.1:19001</code> 的訊息。
+              </p>
+            </div>
+          </li>
+          <li><span class="wn">3</span>
+            <div>
+              <p class="expect"><b>開啟第二個終端機視窗</b>，在新的視窗中輸入以下指令，用剛剛建立的 <code class="inline">b.json</code>
+                與一個獨立狀態目錄，啟動第二個隔離的閘道：</p>
+              <div class="say">OPENCLAW_CONFIG_PATH=~/.openclaw/b.json OPENCLAW_STATE_DIR=~/.openclaw-b openclaw gateway
+                --port 19002</div>
+              <p class="expect">👀 <b>你會看到：</b>第二個閘道成功在連接埠 19002 啟動。因為使用了獨立的狀態與設定路徑，它與第一個閘道是完全互不干涉的。</p>
+              <p class="check">✅ 確認：兩個終端機視窗都在執行閘道，且分別佔用 19001 與 19002 埠。</p>
+            </div>
+          </li>
+          <li><span class="wn">4</span>
+            <div>
+              <p class="expect"><b>開啟第三個終端機視窗</b>，使用系統診斷指令來查看目前主機上所有運作中的閘道服務：</p>
+              <div class="say">openclaw gateway status --deep</div>
+              <p class="expect">👀 <b>你會看到：</b>終端機列出當前系統中偵測到的所有 OpenClaw 相關服務，包括我們剛剛手動開啟的實例，並會顯示是否有設定偏移（drift）的警告。</p>
+              <p class="check">✅ 確認：輸出中有列出我們的背景服務狀態，並且能清楚識別多個執行個體的連接埠。</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="tip">
+          <b>💡 熱重新載入（Hot Reload）：</b><br>
+          OpenClaw 的閘道預設啟用 <code class="inline">gateway.reload.mode="hybrid"</code>。這意味著當你變更設定檔（例如
+          <code class="inline">b.json</code>）時，執行中的程序會<b>自動監看並以無縫（atomic）方式在記憶體中置換快照</b>，不需要你每次手動重開程序。
+        </div>
+
+        <div class="gotcha">
+          <b>卡住了？</b><br>
+          ① 出現 <code class="inline">another gateway instance is already listening</code> 或 <code
+            class="inline">EADDRINUSE</code> 錯誤 → 代表你要使用的連接埠已經被佔用了。請用 <code class="inline">openclaw gateway stop</code>
+          停止舊的服務，或換一個連接埠（如 19003）再試一次。<br>
+          ② 執行系統診斷時發現設定偏移或有遺漏 → 輸入 <code class="inline">openclaw doctor</code> 進行自動修復。
+        </div>
+
+        <div class="adv-card">
+          <p class="seclabel">● 進階挑戰 · 讓兩個閘道掛不同的大腦，同場較勁</p>
+          <h3>一個用雲端 Ollama Cloud，一個用本機 Ollama</h3>
+          <p>既然兩個閘道完全隔離，就讓它們各自接不同的模型：19001 沿用你 Day 1 裝好的 Ollama Cloud 雲端模型，19002 改接本機離線的 Ollama。同一個問題丟給兩邊，比較「雲端 vs 本機」的差異。</p>
+          <ol class="walk">
+            <li><span class="wn">1</span>
+              <div>
+                <p class="expect">編輯 <code class="inline">b.json</code>，把它的預設模型改成本機 Ollama（例如 <code
+                    class="inline">ollama/llama3.2:1b</code>）。不確定怎麼改就對第二個閘道的 Agent 說：</p>
+                <div class="say say2">把你的預設模型換成本機 Ollama 的 llama3.2:1b，改好後告訴我要不要重啟。</div>
+                <p class="check">✅ 確認：19001 仍走 Ollama Cloud 雲端模型、19002 走本機 Ollama，兩邊各自回報自己現在用的模型。</p>
+              </div>
+            </li>
+            <li><span class="wn">2</span>
+              <div>
+                <p class="expect">對兩個閘道問<b>同一個需要即時知識的問題</b>（例如「2024 巴黎奧運在哪一天開幕？」），比較誰答得準、誰比較快。</p>
+                <p class="check">✅ 確認：你能說出兩者至少一個差異（正確性、速度、或是否需要連網），並解釋為什麼。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ===== Quiz Card Topic 1 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_adv_topic1">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 07 隨堂抽考：多重代理指揮官</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span> 當我們需要在一台電腦上同時執行多個 OpenClaw Gateway 時，必須注意以下哪項資源衝突？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic1_0" value="0">
+                <span class="opt-text">通訊埠（Port，例如預設的 18789）不能重複，必須各自設定不同的 Port 號</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic1_0" value="1">
+                <span class="opt-text">電腦的硬碟必須分割成多個磁區</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;" data-exp="正確答案為 A。在一台電腦上多開網路服務時，每一個 Gateway 必須綁定一個獨一無二的 TCP 連接埠（Port），否則會發生 Port already in use 的衝突。"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 多重代理（Multi-agent）架構相較於單一 Agent，其主要優勢在於？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic1_1" value="0">
+                <span class="opt-text">可以將複雜任務拆分給不同專業角色/不同 Provider 模型的 Agent 協作，提升解題成功率與效率</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic1_1" value="1">
+                <span class="opt-text">會讓本機電腦的執行速度自動變快十倍</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;" data-exp="正確答案為 A。多智能體架構（Multi-agent）可以將一個複雜的工作流拆分為多個子任務，交給不同專長的 Agent完成（例如一個抓資料、一個分析代碼），實現協同作業。"></div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_adv_topic1')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_adv_topic1')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+
+      <!-- ===== Theme 8 ===== -->
+      <section class="theme">
+        <div class="thead">
+          <div class="tno">主題<span>08</span></div>
+          <div class="tt">
+            <h2 id="theme-8">自製 AI 服務端點 —— 串接 OpenAI 相容 API</h2>
+            <p class="goal">將 OpenClaw Gateway 為 API 伺服器，利用標準 OpenAI 協定來連接外部軟體或程式。</p>
+            <span class="time">延伸挑戰 B</span>
+          </div>
+        </div>
+        <div class="prep"><b>🧰 事前準備：</b>① 確保 OpenClaw 正在背景或前景執行（預設連接埠 18789）。② 找到你的 OpenClaw 金鑰（Token）。你可以用 TUI 介面或指令
+          <code class="inline">openclaw dashboard --no-open</code> 取得目前的 Token。③ <b>先開好跨來源許可，等一下才不會被瀏覽器擋下來</b>——把 <code
+            class="inline">http://localhost</code> 與 <code class="inline">null</code> 兩個來源加進設定檔的 <code
+            class="inline">gateway.controlUi.allowedOrigins</code>。懶得手動改就對 Agent 說：
+          <div class="say say2" style="margin-top:8px">把 http://localhost 和 null 這兩個來源加進
+            gateway.controlUi.allowedOrigins，改好後告訴我要不要重啟。</div>
+        </div>
+
+        <p class="seclabel base">● 基礎實作 A · 連接外部 Chat UI (以 LobeChat / Open WebUI 為例)</p>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <p class="expect">開啟 LobeChat 或任何支援 OpenAI API 格式的客戶端，進入「設定 -> 語言模型 -> OpenAI」。</p>
+              <p class="expect">將 <b>API 代理地址 (Base URL)</b> 設為：<br><code
+                  class="inline">http://127.0.0.1:18789/v1</code></p>
+              <p class="expect">將 <b>API Key</b> 填入你的 OpenClaw Token。</p>
+              <p class="check">✅ 確認：點選「獲取模型清單」或測試連線時，客戶端成功抓取到 <code class="inline">openclaw/default</code> 模型。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <p class="expect">在客戶端中發送一句問候（如「哈囉，請告訴我你是誰」）。</p>
+              <p class="expect">👀 <b>你會看到：</b>外部軟體成功接收到來自你本機 OpenClaw Agent 的回覆。OpenClaw 會將 <code
+                  class="inline">/v1/chat/completions</code>
+                的請求轉發給預設 Agent 來處理。</p>
+            </div>
+          </li>
+        </ol>
+
+        <p class="seclabel base">● 基礎實作 B · 寫幾行 Javascript 呼叫你自己的 Agent</p>
+        <ol class="walk">
+          <li><span class="wn">3</span>
+            <div>
+              <p class="expect">在桌面建立一個名為 <code class="inline">chat.html</code> 的檔案，使用記事本或編輯器打開，貼入以下程式碼（<b>記得將 Bearer
+                  後方的 TOKEN 替換為你的 OpenClaw
+                  Token</b>）：</p>
+              <pre class="code-block">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+  &lt;h2&gt;呼叫本機 Agent 測試&lt;/h2&gt;
+  &lt;button onclick="callAgent()"&gt;發送測試請求&lt;/button&gt;
+  &lt;p id="output"&gt;等待回應...&lt;/p&gt;
+
+  &lt;script&gt;
+    async function callAgent() {
+      const el = document.getElementById('output');
+      el.innerText = '思考中...';
+      try {
+        const res = await fetch('http://127.0.0.1:18789/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer YOUR_OPENCLAW_TOKEN_HERE'
+          },
+          body: JSON.stringify({
+            model: 'openclaw/default',
+            messages: [{ role: 'user', content: '用一句話問候我' }]
+          })
+        });
+        const data = await res.json();
+        el.innerText = data.choices[0].message.content;
+      } catch (err) {
+        el.innerText = '發生錯誤: ' + err.message;
+      }
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+              <p class="expect">雙擊打開 <code class="inline">chat.html</code> 網頁，並點擊「發送測試請求」按鈕。</p>
+              <p class="check">✅ 確認：網頁畫面上成功顯示了 Agent回傳的問候語。這代表你已經能用語法控制你專屬的 Agent 運作了！</p>
+            </div>
+          </li>
+          <li><span class="wn">4</span>
+            <div>
+              <p class="expect">此時回到你啟動 OpenClaw Gateway 的終端機視窗，或者另開一個終端機執行：</p>
+              <div class="say">openclaw logs --follow</div>
+              <p class="expect">👀 <b>你會看到：</b>終端機中實時滾動輸出剛才網頁與 LobeChat 傳送過來的 HTTP
+                請求紀錄。這就是日誌（Logs）除錯的魅力，你可以看到所有對話與工具呼叫的底層運作軌跡！</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="gotcha">
+          <b>卡住了？</b><br>
+          ① 連線時出現 <code class="inline">unauthorized</code> 或 401 錯誤 → 代表你的 Token 填錯了，請重新複製正確的 Token。<br>
+          ② 瀏覽器中提示 <code class="inline">CORS</code> 或來源不允許錯誤 → 你八成漏了「事前準備 ③」。請確認網頁的來源（雙擊開啟的檔案來源是 <code
+            class="inline">null</code>，本機伺服器則是 <code class="inline">http://localhost</code>）已加進 <code
+            class="inline">gateway.controlUi.allowedOrigins</code>，並重啟閘道。
+        </div>
+
+        <div class="adv-card">
+          <p class="seclabel">● 進階挑戰 · 用程式語言呼叫，並讓回覆一個字一個字跳出來</p>
+          <h3>Python 三行呼叫 ＋ 串流（streaming）回應</h3>
+          <p>網頁只是開胃菜。真正的軟體幾乎都用後端語言呼叫 API。把下面存成 <code class="inline">chat.py</code>，記得換掉 Token，然後在終端機執行 <code
+              class="inline">python3 chat.py</code>：</p>
+          <pre class="code-block">import requests
+
+res = requests.post(
+    "http://127.0.0.1:18789/v1/chat/completions",
+    headers={"Authorization": "Bearer YOUR_OPENCLAW_TOKEN_HERE"},
+    json={
+        "model": "openclaw/default",
+        "messages": [{"role": "user", "content": "用一句話介紹你自己"}],
+    },
+)
+print(res.json()["choices"][0]["message"]["content"])</pre>
+          <p class="check">✅ 確認：終端機印出 Agent 的一句話回覆。恭喜，你剛剛用程式語言驅動了自己的 AI。</p>
+          <p class="expect" style="margin-top:12px"><b>再加難：</b>在送出的 JSON 裡多加一行 <code
+              class="inline">"stream": True</code>，改用 <code class="inline">requests.post(..., stream=True)</code> 並逐行讀
+            <code class="inline">res.iter_lines()</code>，讓回覆像打字機一樣一段一段跳出來。卡住就把這段需求整個貼給 Agent，請它幫你改寫並解釋每一行。
+          </p>
+        </div>
+      </section>
+
+      <!-- ===== Quiz Card Topic 2 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_adv_topic2">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 08 隨堂抽考：自製 API 端點</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span> 自製一個與 OpenAI 相容的 API 服務端點，其主要目的是？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic2_0" value="0">
+                <span class="opt-text">讓任何支援 OpenAI 格式的第三方軟體（如 LobeChat、Open WebUI）都能無縫介接我們跑的模型或自製代理服務</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic2_0" value="1">
+                <span class="opt-text">為了能夠使用 OpenAI 的官方伺服器進行免費運算</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;" data-exp="正確答案為 A。透過自定義與標準 OpenAI API 協議相容的 JSON 端點，可以讓既有的豐富生態系軟體（例如前端聊天 App、自動化工作流引擎）直接讀取我們的 OpenClaw 服務。"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 在 Python 中使用 FastAPI 快速搭建 API 端點時，如果希望實現打字機般的「串流輸出」效果，應該使用 FastAPI 的哪一種 Response 類型？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic2_1" value="0">
+                <span class="opt-text"><code>StreamingResponse</code></span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic2_1" value="1">
+                <span class="opt-text"><code>JSONResponse</code></span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;" data-exp="正確答案為 A。<code>StreamingResponse</code> 允許伺服器將資料分段（chunks）以 Server-Sent Events (SSE) 格式持續傳送給前端，這正是實作 AI 打字機效果的核心技術。"></div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_adv_topic2')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_adv_topic2')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+
+      <!-- ===== Theme 9 ===== -->
+      <section class="theme">
+        <div class="thead">
+          <div class="tno">主題<span>09</span></div>
+          <div class="tt">
+            <h2 id="theme-9">AI 雲端任意門 —— 跨網路遠端存取與安全性</h2>
+            <p class="goal">理解 OpenClaw 的安全繫結邊界，並使用 SSH 隧道或 Tailscale 進行安全的跨網連線。</p>
+            <span class="time">延伸挑戰 C</span>
+          </div>
+        </div>
+        <div class="prep"><b>🧰 事前準備：</b>① 了解你的主機 IP 位址。② 需要有一台可以透過 SSH 連線的遠端主機，或是安裝了
+          Tailscale。<b>只有一台電腦？</b>沒關係——這個主題最適合<b>兩人一組</b>：一人當「主機方」開閘道，另一人當「遠端方」連過去，角色互換再玩一次。</div>
+
+        <div class="safety">
+          <b>🔒 為什麼 OpenClaw 預設只聽 localhost？</b><br>
+          OpenClaw 的 Agent 具有讀寫你本機電腦檔案與執行終端機指令的權限。如果你將 Gateway 隨意繫結（Bind）到 <code class="inline">0.0.0.0</code>
+          且沒有設定強效密碼，<b>網路上任何人都可以隨意控制你的電腦</b>。因此，預設的繫結模式是 <code class="inline">loopback</code>（即
+          127.0.0.1），只允許本機連線。要跨網連線，<b>不是把門大開，而是挖一條只有你進得來的加密地道</b>——這就是隧道技術。
+        </div>
+
+        <!-- SVG Diagram: SSH / Tailscale Encryption Tunnel -->
+        <svg viewBox="0 0 720 220" class="svg-diagram">
+          <style>
+            .door-node { fill: var(--raised); stroke: var(--teal); stroke-width: 2; rx: 8; }
+            .door-text { fill: var(--ink-soft); font-family: var(--sans); font-size: 11px; text-anchor: middle; }
+            .tunnel-pipe { stroke: var(--amber); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 2 4; fill: none; opacity: 0.8; }
+            .arrow-tunnel { fill: var(--amber); }
+          </style>
+        
+          <!-- Left: Remote Device -->
+          <g transform="translate(20, 20)">
+            <rect x="0" y="0" width="160" height="160" class="door-node" />
+            <text x="80" y="30" class="node-title" style="font-size:13px;">📱 遠端設備 (手機/筆電)</text>
+            <rect x="15" y="55" width="130" height="85" rx="6" fill="var(--paper)" stroke="var(--line)" />
+            <text x="80" y="80" class="door-text" style="font-weight:bold; fill:var(--teal-deep);">發送遠端請求</text>
+            <text x="80" y="105" class="door-text" style="font-family:var(--mono); font-size:10px;">http://100.x.y.z:18789</text>
+            <text x="80" y="125" class="door-text">(Tailscale VPN IP)</text>
+          </g>
+        
+          <!-- Middle: Firewall / NAT router -->
+          <g transform="translate(280, 50)">
+            <rect x="0" y="0" width="120" height="100" class="door-node" style="stroke:var(--line); fill:var(--paper);" />
+            <text x="60" y="40" class="node-title" style="fill:var(--ink-soft); font-size:12px;">🛡️ 學校防火牆 / NAT</text>
+            <text x="60" y="70" class="door-text" style="color:var(--warn); font-weight:bold;">阻擋外部直連</text>
+          </g>
+        
+          <!-- Right: Local PC -->
+          <g transform="translate(540, 20)">
+            <rect x="0" y="0" width="160" height="160" class="door-node" style="stroke:var(--teal);" />
+            <text x="80" y="30" class="node-title" style="fill:var(--teal-deep); font-size:13px;">💻 教室主機</text>
+            <rect x="15" y="55" width="130" height="85" rx="6" fill="var(--paper)" stroke="var(--line)" />
+            <text x="80" y="78" class="door-text" style="font-weight:bold; fill:var(--teal);">OpenClaw Gateway</text>
+            <text x="80" y="100" class="door-text" style="font-family:var(--mono); font-size:10px;">127.0.0.1:18789</text>
+            <text x="80" y="120" class="door-text" style="font-size:10px; fill:var(--ink-faint);">(繫結 localhost 確保安全)</text>
+          </g>
+        
+          <!-- SSH / Tailscale Tunnel Pipe -->
+          <path d="M190,100 C320,100 380,100 530,100" class="tunnel-pipe" />
+          <path d="M190,100 C320,100 380,100 530,100" stroke="var(--amber)" stroke-width="2" fill="none" />
+          
+          <text x="340" y="80" class="flow-label" style="fill:var(--amber); font-weight:bold; font-size:11px; text-shadow: 1px 1px 0 var(--raised);">🔐 加密隧道 (Tunnel)</text>
+          <text x="340" y="130" class="flow-label" style="fill:var(--ink-faint); font-size:9px;">(穿透 NAT 防火牆)</text>
+        
+          <!-- Arrow -->
+          <polygon points="535,100 525,95 525,105" class="arrow-tunnel" />
+        </svg>
+
+        <p class="seclabel base">● 實作練習 A · 建立 SSH 安全加密隧道（不必動繫結設定）</p>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <p class="expect">若你要從<b>遠端電腦</b>連回<b>主機方的 OpenClaw 閘道</b>，請在遠端電腦執行以下 SSH 隧道指令（將 <code
+                  class="inline">user@gateway-host</code>
+                換成主機方的 SSH 登入資訊）：</p>
+              <div class="say">ssh -N -L 18789:127.0.0.1:18789 user@gateway-host</div>
+              <p class="expect">👀 <b>原理說明：</b>這個指令會在你的遠端電腦上監聽 18789 埠，並把所有流向此埠的流量，透過加密的 SSH 通道，安全地轉發到主機方的
+                <code class="inline">127.0.0.1:18789</code>。對閘道來說，連線「看起來」還是來自本機，所以<b>完全不用改繫結設定</b>，也不必暴露公網 IP！
+              </p>
+              <p class="check">✅ 確認：遠端電腦的終端機停住不動、沒有報錯，代表隧道已經建立成功。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <p class="expect">隧道開著別關，在<b>遠端電腦的瀏覽器</b>輸入控制台網址 <code
+                  class="inline">http://127.0.0.1:18789</code>，並貼上主機方給你的 Token。</p>
+              <p class="expect">👀 <b>你會看到：</b>控制台順利打開。你操作的雖然是本機的 18789，實際上經由地道連到的是<b>另一台電腦</b>的 Agent。</p>
+              <p class="check">✅ 確認：在遠端電腦上成功操控了另一台電腦的 AI Agent，且主機方的閘道終端機看到 SSH 轉接的連線日誌。</p>
+            </div>
+          </li>
+        </ol>
+
+        <p class="seclabel base">● 實作練習 B · 體驗零設定的 VPN 加密網絡 —— Tailscale</p>
+        <ol class="walk">
+          <li><span class="wn">3</span>
+            <div>
+              <p class="expect">如果不想手動打 SSH 指令，可以在兩台電腦上都下載並安裝 <a href="https://tailscale.com" target="_blank"
+                  style="color:var(--teal-deep); font-weight:bold;">Tailscale</a> 並登入同一個帳號。啟用後，每台電腦都會拿到一個 <code
+                  class="inline">100.xx.xx.xx</code> 的虛擬私人 IP。</p>
+              <p class="expect"><b>⚠️ 和 SSH 隧道不同，這裡需要主機方動一次繫結設定。</b>因為預設的 <code class="inline">loopback</code> 只聽
+                127.0.0.1，Tailscale 的流量進不來。請主機方把繫結改成也監聽 Tailscale 介面——最省事的方式是對 Agent 說：</p>
+              <div class="say say2">把 OpenClaw 閘道的繫結改成也允許我的 Tailscale 網路連線（tailnet），其他來源維持擋掉。改好後告訴我要不要重啟，以及我該用哪個網址連。
+              </div>
+              <p class="expect">👀 <b>安全提醒：</b>Tailscale 是私有網路，只有登入同一帳號的裝置進得來；但<b>務必不要改成 <code
+                    class="inline">0.0.0.0</code></b>，那等於對整個公網開門。</p>
+              <p class="check">✅ 確認：在另一台裝置的瀏覽器輸入 <code class="inline">http://&lt;主機方的 Tailscale-IP&gt;:18789</code>，輸入
+                Token 後成功打開控制台。</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="adv-card">
+          <p class="seclabel">● 進階挑戰 · 把教室的電腦裝進口袋</p>
+          <h3>用手機透過 Tailscale 遠端指揮教室主機的 Agent</h3>
+          <p>把上面的「遠端方」換成你的<b>手機</b>：在手機安裝 Tailscale App 登入同一帳號，就能在回家的路上，用手機瀏覽器連回教室那台電腦的 Agent，叫它幫你整理今天的檔案。</p>
+          <ol class="walk">
+            <li><span class="wn">1</span>
+              <div>
+                <p class="expect">手機裝好 Tailscale、登入同一帳號並確認連線亮綠燈；主機方維持練習 B 改好的 tailnet 繫結。</p>
+                <p class="check">✅ 確認：手機瀏覽器開 <code class="inline">http://&lt;主機方 Tailscale-IP&gt;:18789</code>
+                  能看到控制台登入畫面。</p>
+              </div>
+            </li>
+            <li><span class="wn">2</span>
+              <div>
+                <p class="expect">用手機登入後，對教室主機的 Agent 下一個真的會動到那台電腦的指令：</p>
+                <div class="say say2">把你 workspace 裡今天新增的檔案列出來，整理成一則三行的摘要給我。</div>
+                <p class="check">✅ 確認：手機上收到的回覆，反映的是<b>教室那台電腦</b>的實際檔案——你已經把一台電腦裝進口袋了。</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="gotcha">
+          <b>安全守則防線：</b><br>
+          即使使用了 SSH 隧道或 Tailscale，OpenClaw 的驗證機制依然在起作用。<b>請勿為了貪圖方便而將 <code class="inline">gateway.auth.token</code>
+            設為空值</b>，也不要把繫結改成 <code class="inline">0.0.0.0</code>，否則一旦通道被開啟，仍會存在安全風險。
+        </div>
+      </section>
+
+      <!-- ===== Quiz Card Topic 3 ===== -->
+      <div class="quiz-card" data-quiz-id="day2_adv_topic3">
+        <div class="quiz-header">
+          <span class="quiz-icon">🧠</span>
+          <h3>主題 09 隨堂抽考：AI 雲端任意門</h3>
+        </div>
+        <div class="quiz-body">
+          <!-- Question 1 -->
+          <div class="quiz-q" data-q-idx="0">
+            <div class="quiz-q-title"><span class="q-badge">Q1</span> 使用 Tailscale 來連接手機與教室主機，主要是為了解決什麼網路問題？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic3_0" value="0">
+                <span class="opt-text">在沒有實體公網 IP 與防火牆限制下，建立一個安全的虛擬私有網路 (VPN) 隧道來互連</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic3_0" value="1">
+                <span class="opt-text">提升本機的寬頻網路頻寬</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;" data-exp="正確答案為 A。Tailscale 採用了 WireGuard 技術，可以在本機沒有公網 IP、或是處於學校 NAT/防火牆後方時，安全、穿透性地將兩台設備打通成同一個虛擬區域網路。"></div>
+          </div>
+
+          <!-- Question 2 -->
+          <div class="quiz-q" data-q-idx="1">
+            <div class="quiz-q-title"><span class="q-badge">Q2</span> 在跨網路遠端操控 Agent 時，最需要注意的安全設定是？</div>
+            <div class="quiz-options">
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic3_1" value="0">
+                <span class="opt-text">啟用 Token 認證或限制來源 IP/Tailscale 網段，以防未授權的外部人員控制你的電腦</span>
+              </label>
+              <label class="quiz-opt">
+                <input type="radio" name="q_adv_topic3_1" value="1">
+                <span class="opt-text">確保不要開啟 SSL 憑證</span>
+              </label>
+            </div>
+            <div class="quiz-feedback" style="display: none;" data-exp="正確答案為 A。因為遠端控制 Agent 意謂著給予了對方執行本機代碼的權限，如果安全認證被破解或沒有設防，入侵者可能接管你的本機電腦，必須極度注意！"></div>
+          </div>
+        </div>
+        <div class="quiz-footer">
+          <button class="quiz-btn check-btn" onclick="checkQuiz('day2_adv_topic3')">檢查答案</button>
+          <button class="quiz-btn submit-btn" onclick="submitQuiz('day2_adv_topic3')" style="display: none;">送出成績</button>
+          <div class="quiz-status-msg"></div>
+        </div>
+      </div>
+
+      <!-- ===== 通關收尾 ===== -->
+      <section class="theme" style="border:2px solid var(--teal); text-align:center;">
+        <h2 style="margin:0 0 6px; font-size:22px; font-weight:800;">🏆 三關全過——你現在是 Gateway 管理員了</h2>
+        <p class="lead" style="margin:0 auto 18px; max-width:60ch;">你已經從「使用 AI」跨到「指揮並維運 AI」。走之前，對照下面的檢核表，確認每一關都真的通了：</p>
+        <div class="legend" style="text-align:left; max-width:640px; margin:0 auto;">
+          <h2>🎯 通關檢核表</h2>
+          <ul style="gap:10px;">
+            <li><span class="k ok">主題 07</span><span>我能同時跑兩個互不干涉的閘道，並用 <code class="inline">gateway status</code>
+                認出它們各自的連接埠。</span></li>
+            <li><span class="k ok">主題 08</span><span>我能用網頁或程式（JavaScript／Python）透過 OpenAI 相容 API 呼叫自己的 Agent，並看懂 <code
+                  class="inline">logs</code>。</span></li>
+            <li><span class="k ok">主題 09</span><span>我能說出「為什麼預設只聽 localhost」，並用 SSH 隧道或 Tailscale 安全地跨網連線。</span></li>
+          </ul>
+        </div>
+        <p class="expect" style="margin:20px auto 0; max-width:60ch;"><b>🎤 上台 demo（2–3 分）挑一關講：</b>① 我做到了什麼；②
+          過程中卡在哪、怎麼查（日誌／doctor／換埠）；③ 這個能力在真實世界可以拿來做什麼。</p>
+      </section>
+
+      <footer>
+        <span>講師：吳政隆教授 · 主辦：<a href="https://bigdata.scu.edu.tw">東吳大學資料科學系</a> · <a
+            href="https://nlp.bigdata.scu.edu.tw">東吳大學自然語言處理實驗室</a></span>
+        <span>OPENCLAW WORKSHOP · EXTENSION · 3 CHALLENGES · v2</span>
+      </footer>
+    </div>
+  </div>
+</body>
+
+<!-- Universal Quiz Controller Script -->
+<script>
+(function() {
+  const DEFAULT_SURVEY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwA2O384aMgbu_1T0scyw4BKGoKPNjQ8S2QP6clzyFtRxpoeo_Kr_P-sE4i9s45rPnB9g/exec';
+  const urlParams = new URLSearchParams(window.location.search);
+  const SURVEY_ENDPOINT = urlParams.get('endpoint') || DEFAULT_SURVEY_ENDPOINT;
+
+  const QUIZ_ANSWERS = {
+    'install_guide': [1, 1],
+    'day1_afternoon_warmup': [1, 1],
+    'day1_afternoon_prompt': [0, 1],
+    'day1_afternoon_debugging': [1, 2],
+    'day1_afternoon_challenge': [0],
+    'day2_theme1': [0, 1],
+    'day2_theme2': [0, 1],
+    'day2_theme3': [0, 0],
+    'day2_theme4': [0, 0],
+    'day2_theme5': [0, 0],
+    'day2_theme6': [0, 0],
+    'day2_adv_topic1': [0, 0],
+    'day2_adv_topic2': [0, 0],
+    'day2_adv_topic3': [0, 0]
+  };
+
+  window.checkQuiz = function(quizId) {
+    const card = document.querySelector(`.quiz-card[data-quiz-id="${quizId}"]`);
+    if (!card) return;
+    
+    const correctAns = QUIZ_ANSWERS[quizId];
+    if (!correctAns) return;
+    
+    let allAnswered = true;
+    let score = 0;
+    const studentAnswers = [];
+    
+    const qDivs = card.querySelectorAll('.quiz-q');
+    qDivs.forEach((qDiv, qIdx) => {
+      const selectedOpt = qDiv.querySelector('input[type="radio"]:checked');
+      if (!selectedOpt) {
+        allAnswered = false;
+        return;
+      }
+      
+      const chosenVal = parseInt(selectedOpt.value, 10);
+      studentAnswers.push(chosenVal);
+      const isCorrect = (chosenVal === correctAns[qIdx]);
+      if (isCorrect) score++;
+      
+      const optLabels = qDiv.querySelectorAll('.quiz-opt');
+      optLabels.forEach((label, optIdx) => {
+        label.classList.remove('opt-correct', 'opt-incorrect');
+        if (optIdx === correctAns[qIdx]) {
+          label.classList.add('opt-correct');
+        } else if (optIdx === chosenVal) {
+          label.classList.add('opt-incorrect');
+        }
+      });
+      
+      const feedbackBlock = qDiv.querySelector('.quiz-feedback');
+      if (feedbackBlock) {
+        feedbackBlock.style.display = 'block';
+        feedbackBlock.className = `quiz-feedback ${isCorrect ? 'fb-correct' : 'fb-incorrect'}`;
+        const prefix = isCorrect ? '🎉 答對了！' : '❌ 答錯囉，再想想看！';
+        const expText = feedbackBlock.getAttribute('data-exp') || '';
+        feedbackBlock.innerHTML = `<strong>${prefix}</strong> ${expText}`;
+      }
+    });
+    
+    if (!allAnswered) {
+      alert('請先答完所有題目再進行檢查！');
+      return;
+    }
+    
+    const submitBtn = card.querySelector('.submit-btn');
+    if (submitBtn) {
+      submitBtn.style.display = 'inline-block';
+    }
+    
+    const statusMsg = card.querySelector('.quiz-status-msg');
+    if (statusMsg) {
+      statusMsg.textContent = `檢查完成！您的得分：${score} / ${correctAns.length}`;
+    }
+    
+    card.setAttribute('data-score', score);
+    card.setAttribute('data-answers', JSON.stringify(studentAnswers));
+  };
+
+  window.submitQuiz = function(quizId) {
+    const card = document.querySelector(`.quiz-card[data-quiz-id="${quizId}"]`);
+    if (!card) return;
+    
+    const score = card.getAttribute('data-score');
+    const answers = card.getAttribute('data-answers');
+    if (score === null || answers === null) {
+      alert('請先完成檢查答案後再送出成績！');
+      return;
+    }
+    
+    let studentName = localStorage.getItem('openclaw_student_name') || '';
+    showQuizModal(quizId, score, answers, studentName);
+  };
+  
+  function showQuizModal(quizId, score, answers, studentName) {
+    let modal = document.getElementById('quizResultModal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'quizResultModal';
+      modal.className = 'quiz-modal';
+      modal.innerHTML = `
+        <div class="quiz-modal-content">
+          <div class="quiz-modal-title">📝 送出測驗成績</div>
+          <div class="quiz-modal-desc" id="quizModalDesc">請輸入您的姓名或暱稱，以將本次測驗成績送出存檔：</div>
+          <input type="text" id="quizStudentName" class="quiz-name-input" placeholder="例如：王小明">
+          <div class="quiz-json-box" id="quizJsonDisplay" style="display:none;"></div>
+          <button class="quiz-modal-btn" id="quizModalSubmitBtn">確認送出</button>
+          <button class="quiz-modal-btn" id="quizModalCloseBtn" style="background:#7C837E; margin-top:8px;">關閉</button>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      document.getElementById('quizModalCloseBtn').onclick = function() {
+        modal.classList.remove('active');
+      };
+    }
+    
+    const nameInput = document.getElementById('quizStudentName');
+    nameInput.value = studentName;
+    nameInput.style.display = 'block';
+    
+    const descText = document.getElementById('quizModalDesc');
+    descText.innerHTML = `請輸入您的姓名或暱稱，以將本次測驗成績（單元：<code>${quizId}</code>，得分：<code>${score}</code>）送出存檔：`;
+    
+    const jsonBox = document.getElementById('quizJsonDisplay');
+    jsonBox.style.display = 'none';
+    
+    const submitBtn = document.getElementById('quizModalSubmitBtn');
+    submitBtn.style.display = 'block';
+    submitBtn.onclick = function() {
+      const enteredName = nameInput.value.trim();
+      if (!enteredName) {
+        alert('請輸入姓名或暱稱！');
+        return;
+      }
+      localStorage.setItem('openclaw_student_name', enteredName);
+      
+      const payload = {
+        student_name: enteredName,
+        quiz_id: quizId,
+        score: parseInt(score, 10),
+        answers: JSON.parse(answers),
+        survey_type: `quiz_${quizId}`,
+        timestamp: new Date().toISOString()
+      };
+      
+      if (SURVEY_ENDPOINT && SURVEY_ENDPOINT !== 'https://script.google.com/macros/s/AKfycbwA2O384aMgbu_1T0scyw4BKGoKPNjQ8S2QP6clzyFtRxpoeo_Kr_P-sE4i9s45rPnB9g/exec') {
+        const searchParams = new URLSearchParams();
+        searchParams.append('payload', JSON.stringify(payload));
+        
+        descText.innerHTML = `正在送出成績...`;
+        submitBtn.style.display = 'none';
+        nameInput.style.display = 'none';
+        
+        fetch(SURVEY_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: searchParams
+        })
+        .then(() => {
+          descText.innerHTML = `🎉 成績上傳成功！感謝您的參與。`;
+        })
+        .catch(err => {
+          console.error('Quiz submit error:', err);
+          descText.innerHTML = `💡 上傳發生錯誤，以下為您的測驗 JSON 資料，您可以複製給助教：`;
+          jsonBox.style.display = 'block';
+          jsonBox.textContent = JSON.stringify(payload, null, 2);
+        });
+      } else {
+        descText.innerHTML = `💡 <b>提示</b>：後端接收端點（SURVEY_ENDPOINT）為預設值或未設定。<br>在本機開發模式下，以下是打包好的作答 JSON 數據：`;
+        nameInput.style.display = 'none';
+        submitBtn.style.display = 'none';
+        jsonBox.style.display = 'block';
+        jsonBox.textContent = JSON.stringify(payload, null, 2);
+      }
+    };
+    
+    modal.classList.add('active');
+  }
+})();
+</script>
+</html>

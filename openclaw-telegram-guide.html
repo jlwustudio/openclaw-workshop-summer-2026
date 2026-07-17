@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="utf-8">
+  <title>OpenClaw Telegram 機器人串接指南</title>
+  <style>
+    /* 佈景以淺色系為主：與既有教材風格一致 */
+    :root {
+      --paper: #F1F2EF;
+      --raised: #FBFCFA;
+      --ink: #191B1A;
+      --ink-soft: #4A514D;
+      --ink-faint: #7C837E;
+      --line: #DCDFD9;
+      --line-soft: #E7E9E4;
+      --teal: #0E7C7B;
+      --teal-deep: #0A5C5B;
+      --teal-wash: #E2EEED;
+      --amber: #C9820A;
+      --amber-bright: #E9A020;
+      --amber-wash: #F7EBD3;
+      --term-bg: #12211F;
+      --term-ink: #D9E6E2;
+      --warn: #B4560A;
+      --warn-wash: #F8E6D2;
+      --shadow: 0 1px 2px rgba(25, 27, 26, .05), 0 8px 22px -12px rgba(25, 27, 26, .18);
+      --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, "Cascadia Mono", "Roboto Mono", monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      font-size: 16px;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    header.mast {
+      padding: 52px 0 24px;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--teal-deep);
+      margin: 0 0 12px;
+    }
+
+    .backlink {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--teal-deep);
+      border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+      text-transform: uppercase;
+    }
+
+    .legend {
+      margin: 22px 0 6px;
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .legend h2 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      font-family: var(--mono);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--teal-deep);
+    }
+
+    .legend ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .legend li {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 12px;
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      align-items: baseline;
+    }
+
+    .legend .k {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .legend .k.k-say {
+      background: var(--term-bg);
+      color: var(--term-ink);
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-family: var(--mono);
+      font-size: 11.5px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .legend .k.see {
+      color: var(--teal-deep);
+    }
+
+    .legend .k.ok {
+      color: var(--teal-deep);
+    }
+
+    @media (max-width: 640px) {
+      .legend li {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .legend .k.k-say {
+        width: 100% !important;
+      }
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand svg {
+      width: 30px;
+      height: 30px;
+      color: var(--teal);
+    }
+
+    .brand b {
+      font-family: var(--mono);
+      font-size: 14px;
+    }
+
+    .brand b span {
+      color: var(--teal);
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -.02em;
+      font-weight: 800;
+      margin: 18px 0 0;
+      text-wrap: balance;
+    }
+
+    .lead {
+      margin: 14px 0 0;
+      font-size: 17px;
+      color: var(--ink-soft);
+      max-width: 66ch;
+    }
+
+    .block {
+      margin-top: 34px;
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px 26px;
+      box-shadow: var(--shadow);
+    }
+
+    .bhead {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      border-bottom: 1px solid var(--line-soft);
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+    }
+
+    .bno {
+      flex: none;
+      width: 52px;
+      height: 52px;
+      border-radius: 13px;
+      background: var(--teal);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .bno span {
+      font-size: 9px;
+      font-weight: 400;
+      opacity: .85;
+    }
+
+    .bhead .tt {
+      flex: 1;
+    }
+
+    .bhead h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -.01em;
+    }
+
+    .bhead .goal {
+      margin: 5px 0 0;
+      font-size: 14.5px;
+      color: var(--ink-soft);
+    }
+
+    .seclabel {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin: 0 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--teal-deep);
+    }
+
+    .walk {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 4px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .walk>li {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .wn {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--teal);
+      color: #fff;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    /* ================= Unified Terminal & Dialogue Block Styles ================= */
+    /* 1. Terminal Block base style (維持深色，等同程式碼區塊) */
+    .term {
+      position: relative;
+      background: #1c1c1c;
+      /* Default common dark charcoal */
+      border: 1px solid #2d2d2d;
+      border-radius: 11px;
+      padding: 14px 16px;
+      margin: 6px 0 10px;
+      overflow-x: auto;
+      box-shadow: var(--shadow);
+    }
+
+    .term.labeled {
+      padding-top: 32px;
+    }
+
+    .term.labeled::before,
+    .term::before {
+      position: absolute;
+      left: 16px;
+      top: 10px;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    /* macOS Terminal */
+    .term.macos {
+      background: #1e2530 !important;
+      border: 1px solid #2a3545 !important;
+    }
+
+    .term.macos::before {
+      content: "終端機（macOS）輸入 ›" !important;
+      color: #A3D8F4 !important;
+    }
+
+    /* Windows PowerShell */
+    .term.windows {
+      background: #0c1a30 !important;
+      border: 1px solid #1a2f52 !important;
+    }
+
+    .term.windows::before {
+      content: "PowerShell（Windows）輸入 ›" !important;
+      color: #EBC17A !important;
+    }
+
+    /* Common Terminal */
+    .term.common {
+      background: #1c1c1c !important;
+      border: 1px solid #2d2d2d !important;
+    }
+
+    .term.common::before {
+      content: "電腦終端機（macOS / Windows）輸入 ›" !important;
+      color: #A3D8F4 !important;
+    }
+
+    /* Chat prompt inside term class */
+    .term.chat {
+      background: #112220 !important;
+      border: 1px solid #1d3b37 !important;
+    }
+
+    .term.chat::before {
+      content: "對 OpenClaw 助理說 ›" !important;
+      color: #6FBFA0 !important;
+    }
+
+    /* Code elements inside term */
+    .term code {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--term-ink);
+      white-space: pre;
+      display: block;
+      line-height: 1.7;
+    }
+
+    .term .pr {
+      color: #6FBFA0;
+    }
+
+    .term .cm {
+      color: #EBC17A;
+    }
+
+    .term .ok {
+      color: #7FD1A8;
+    }
+
+    .term .cmt {
+      color: #8AA39B;
+    }
+
+    /* 2. Dialogue / Chat Block (對話區塊，與終端機區分) */
+    .say {
+      background: #112220;
+      /* Default chat dark teal */
+      border: 1px solid #1d3b37;
+      border-radius: 9px;
+      padding: 32px 13px 9px 13px;
+      position: relative;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--term-ink);
+      line-height: 1.55;
+      overflow-wrap: break-word;
+    }
+
+    .say::before {
+      content: "對 BotFather ›";
+      /* Retain default prefix for telegram-guide */
+      position: absolute;
+      left: 13px;
+      top: 10px;
+      color: #6FBFA0;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: .02em;
+      writing-mode: horizontal-tb;
+      display: block;
+    }
+
+    /* Dialogue variations */
+    .say.terminal {
+      background: #1c1c1c !important;
+      border: 1px solid #2d2d2d !important;
+    }
+
+    .say.terminal::before {
+      content: "電腦終端機（macOS / Windows）輸入 ›" !important;
+      color: #A3D8F4 !important;
+    }
+
+    .say.mybot::before {
+      content: "對 OpenClaw 助理說 ›" !important;
+      color: #6FBFA0 !important;
+    }
+
+    .say.say2::before {
+      content: "對 OpenClaw 助理說 ›" !important;
+      color: #6FBFA0 !important;
+    }
+
+    .say.config {
+      background: #251c10 !important;
+      border: 1px solid #3d2f1c !important;
+    }
+
+    .say.config::before {
+      content: "設定檔內容 ›" !important;
+      color: #E9A020 !important;
+    }
+
+    /* 手打指令框樣式 */
+    .say-manual {
+      background: #0f1917 !important;
+      border: 1px dashed rgba(233, 160, 32, 0.4) !important;
+      border-radius: 9px;
+      padding: 32px 13px 9px 13px;
+      position: relative;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #cbdad5 !important;
+      line-height: 1.55;
+      overflow-wrap: break-word;
+      margin: 12px 0;
+    }
+
+    .say-manual::before {
+      content: "手打輸入 ›" !important;
+      position: absolute;
+      left: 13px;
+      top: 10px;
+      color: var(--amber-bright) !important;
+      font-weight: 700;
+      font-size: 10px;
+      letter-spacing: .02em;
+    }
+
+    .expect {
+      margin: 7px 0 3px;
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+
+    .expect b {
+      color: var(--ink);
+    }
+
+    .check {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--teal-deep);
+      font-weight: 600;
+    }
+
+    .gotcha {
+      margin-top: 16px;
+      border-left: 3px solid var(--amber-bright);
+      background: var(--amber-wash);
+      padding: 11px 15px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+    }
+
+    .gotcha b {
+      color: var(--amber);
+    }
+
+    .tip {
+      margin-top: 14px;
+      border-left: 3px solid var(--amber-bright);
+      background: var(--amber-wash);
+      padding: 11px 15px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13.5px;
+    }
+
+    .tip b {
+      color: var(--amber);
+    }
+
+    .tip.alert {
+      border-left: 3px solid var(--warn);
+      background: var(--warn-wash);
+    }
+
+    .tip.alert b {
+      color: var(--warn);
+    }
+
+    code.inline {
+      font-family: var(--mono);
+      font-size: 12.5px;
+      background: var(--line-soft);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 6px;
+      color: var(--ink);
+    }
+
+    footer {
+      margin-top: 52px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--ink-faint);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    footer a {
+      color: var(--teal-deep);
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+    }
+
+    @media (max-width:640px) {
+      .block {
+        padding: 18px 16px;
+      }
+
+      .walk>li {
+        grid-template-columns: 24px 1fr;
+        gap: 9px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="wrap">
+      <header class="mast">
+        <p class="eyebrow">AI 召喚師：從使用 AI，到指揮 AI</p>
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+          <div class="brand">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+              stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 3v6" />
+              <path d="M12 9c-2 0-3 1-3.5 3l-1 5" />
+              <path d="M12 9c2 0 3 1 3.5 3l1 5" />
+              <path d="M12 9v6" />
+              <circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none" />
+            </svg>
+            <b>open<span>claw</span> · Telegram 串接圖文指南</b>
+          </div>
+          <a href="openclaw-day2-worksheets.html" class="backlink">&larr; 回 Day 2 講義</a>
+        </div>
+        <h1>隨身召喚：親手將 AI 助理接到手機 Telegram</h1>
+        <p class="lead">本指南將帶領你一步步透過 Telegram 官方的 <b>BotFather</b> 建立一個專屬於你自己的機器人（Bot），取得金鑰 Token 並安全地綁定到你的 OpenClaw
+          中，實現手機遠端遙控！</p>
+        <div class="legend">
+          <h2>怎麼讀每一步</h2>
+          <ul>
+            <li><span class="k k-say" style="width: 240px; color: #6FBFA0;">對 BotFather ›</span><span>深色框＝在 Telegram
+                對話框裡，一字不差傳送給 BotFather 的指令或文字。</span></li>
+            <li><span class="k k-say" style="width: 240px; color: #A3D8F4;">電腦終端機（macOS / Windows）輸入
+                ›</span><span>要在電腦的終端機或
+                PowerShell 裡輸入並執行的指令。</span></li>
+            <li><span class="k k-say" style="width: 240px; color: #6FBFA0;">對 OpenClaw 助理說 ›</span><span>在手機上，傳送給你自己
+                OpenClaw
+                機器人的訊息。</span></li>
+            <li><span class="k k-say" style="width: 240px; color: #E9A020;">設定檔內容 ›</span><span>OpenClaw
+                設定檔（JSON）裡對應的內容片段。</span></li>
+            <li><span class="k see" style="width: 240px;">👀 你會看到</span><span>接下來終端機或聊天畫面上，大概會出現的反應。</span></li>
+            <li><span class="k ok" style="width: 240px;">✅ 確認</span><span>怎麼判斷這一步真的成功了，再往下一步。</span></li>
+          </ul>
+        </div>
+      </header>
+
+      <!-- Part A -->
+      <section class="block">
+        <div class="bhead">
+          <div class="bno">Part<span>A</span></div>
+          <div class="tt">
+            <h2>準備工作：安裝與註冊 Telegram</h2>
+            <p class="goal">確保你的手機或電腦已就緒，能接收簡訊驗證碼。</p>
+          </div>
+        </div>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <p class="expect">在你的手機上，開啟 App Store (iOS) 或 Google Play (Android)，搜尋並下載 <b>Telegram Messenger</b>。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <p class="expect">打開 App，使用你的手機門號進行註冊與登入。系統會發送簡訊驗證碼至你的手機，輸入後即可完成登入。</p>
+              <div class="gotcha"><b>💡 小提醒：</b>部分電信業者可能會阻擋國際簡訊。若一直收不到簡訊，請確認手機沒有開啟「阻擋未知簡訊」功能，或改在連線穩定的環境重試。</div>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Part B -->
+      <section class="block">
+        <div class="bhead">
+          <div class="bno">Part<span>B</span></div>
+          <div class="tt">
+            <h2>向 BotFather 申請機器人與 Token</h2>
+            <p class="goal">在 Telegram 中與官方機器人之父互動，創立你的 Bot。</p>
+          </div>
+        </div>
+        <p style="margin: 0 0 16px; font-size: 15px; color: var(--ink-soft);">在手機或電腦版 Telegram 中執行以下步驟：</p>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <p class="expect">在 Telegram 上方的搜尋列輸入 <b>@BotFather</b>。請認明有<b>藍色勾勾</b>的官方認證帳號，點擊進入並按下最下方的 <b>Start</b>
+                啟動對話。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <p class="expect">發送指令開始建立新機器人：</p>
+              <div class="say">/newbot</div>
+              <p class="expect">👀 <b>BotFather 會回應：</b>詢問你要如何命名你的機器人（Display Name，例如：<code>小明的 OpenClaw 助理</code>）。</p>
+            </div>
+          </li>
+          <li><span class="wn">3</span>
+            <div>
+              <p class="expect">輸入你想要的<b>顯示名稱</b>（這只會顯示在對話視窗上方，可以隨時修改）：</p>
+              <div class="say">我的 AI 助理</div>
+              <p class="expect">👀 <b>BotFather 會回應：</b>好的！現在請為你的機器人設定一個唯一的帳號名稱（Username）。注意：此帳號必須以 <b>bot</b>
+                結尾（例如：<code>xiaoming_claw_bot</code>）。</p>
+            </div>
+          </li>
+          <li><span class="wn">4</span>
+            <div>
+              <p class="expect">輸入唯一的<b>帳號名稱（Username）</b>：</p>
+              <div class="say">my_openclaw_2026_bot</div>
+              <div class="gotcha"><b>帳號重複？</b>如果回應顯示 <i>Sorry, this username is already taken...</i>
+                代表被別人註冊過了。請換一個加入數字或特定代碼的名稱重試。</div>
+            </div>
+          </li>
+          <li><span class="wn">5</span>
+            <div>
+              <p class="expect">👀 <b>BotFather 會回應大段成功訊息：</b><br>
+                <i>Done! Congratulations on your new bot... Use this token to access the HTTP API:</i><br>
+                緊接著會出現一串<b>很長的英數金鑰（Token）</b>，格式類似：<br>
+                <code class="inline">123456789:ABCdefGhIJKlmNoPQRsTUVwxyZ</code>
+              </p>
+              <p class="check">✅ 確認：點擊或複製這串 Token 並妥善保存。<b>不要洩漏給其他同學，因為拿到這串 Token 就能任意控制你的機器人！</b></p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Part C -->
+      <section class="block">
+        <div class="bhead">
+          <div class="bno">Part<span>C</span></div>
+          <div class="tt">
+            <h2>將 Token 串接到 OpenClaw 並啟動</h2>
+            <p class="goal">使用終端機將金鑰寫入，並重啟背景服務。</p>
+          </div>
+        </div>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <p class="expect"><b>另開一個新的終端機視窗</b>（保持原本執行 <code class="inline">openclaw</code> 的視窗開著不要關閉）。輸入以下指令將 Token
+                綁定到 OpenClaw 中（請將 <code>&lt;Your_Token&gt;</code> 換成你剛才從 BotFather 複製的那一長串金鑰）：</p>
+              <div class="say terminal">openclaw channels add --channel telegram --token &lt;Your_Token&gt;</div>
+              <p class="expect">👀 <b>你會看到：</b>終端機回應 <code>Telegram channel config updated successfully.</code>
+                或者是連線設定更新成功的訊息。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <p class="expect">在同一個終端機中，執行重啟指令來套用全新的設定：</p>
+              <div class="say terminal">openclaw gateway restart</div>
+              <p class="expect">👀 <b>你會看到：</b>服務重新啟動，並顯示 Gateway 重新上線的成功日誌。</p>
+            </div>
+          </li>
+          <li><span class="wn">3</span>
+            <div>
+              <p class="expect"><b>手機送出配對請求：</b>打開 Telegram，搜尋你剛才為 Bot 創立的
+                <code>Username</code>（例如：<code>my_openclaw_2026_bot</code>）。點擊
+                <b>Start</b>，並對它傳送任意文字（例如：<code>Hello</code>）：</p>
+              <div class="say mybot" style="background:#2C3E50;color:#ECF0F1;">Hello</div>
+              <p class="expect">👀 <b>你會看到：</b>由於 OpenClaw 的預設安全機制（<code>pairing</code> 模式），機器人不會直接回覆你的問候，而是會傳送一串 6
+                位數的<b>配對驗證碼（Pairing Code）</b>（例如：<code>ABC123</code>），並提醒你需至終端機核准此配對請求。</p>
+            </div>
+          </li>
+          <li><span class="wn">4</span>
+            <div>
+              <p class="expect"><b>終端機核准配對：</b>回到電腦的終端機，執行以下核准指令（請將 <code>&lt;Pairing_Code&gt;</code> 替換成你在手機上收到的 6
+                位數配對碼，例如：<code>ABC123</code>）：</p>
+              <div class="say terminal">openclaw pairing approve telegram &lt;Pairing_Code&gt;</div>
+              <p class="expect">👀 <b>你會看到：</b>終端機回應配對成功的確認日誌。如果有需要，你也可以輸入以下指令來查看目前所有待處理的配對請求：</p>
+              <div class="say terminal">openclaw pairing list telegram</div>
+            </div>
+          </li>
+          <li><span class="wn">5</span>
+            <div>
+              <p class="expect"><b>測試正常交談：</b>配對核准後，再次打開手機 Telegram，對你的 Bot 傳送問候語：</p>
+              <div class="say mybot" style="background:#2C3E50;color:#ECF0F1;">嗨！你上線了嗎？</div>
+              <p class="expect">👀 <b>你會看到：</b>此時機器人已通過驗證，會立刻正常回覆你的對話，代表你的助理正式接入你的手機！</p>
+              <p class="check">✅ 確認：手機成功收到回覆，且電腦上的 <code class="inline">openclaw</code> 終端機也有同步印出收到 Telegram 訊息的日誌。</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Part D -->
+      <section class="block">
+        <div class="bhead">
+          <div class="bno">Part<span>D</span></div>
+          <div class="tt">
+            <h2>安全防護：防盜防毒白名單設定 (dmPolicy)</h2>
+            <p class="goal">只允許你控制助理，防範其他同學惡意搶奪控制權。</p>
+          </div>
+        </div>
+        <p style="margin: 0 0 16px; font-size: 15px; color: var(--ink-soft);">在預設的
+          <code>pairing</code>（配對）模式下，雖然他人必須取得配對碼並由你在終端機核准後才能使用，但若 gateway 重啟，配對狀態有時會重置。為了解決安全與連線穩定性隱憂，我們建議將安全政策改為
+          <b><code>allowlist</code>（白名單）限制</b>，只允許你設定的專屬 ID 直接連線：</p>
+        <ol class="walk">
+          <li><span class="wn">1</span>
+            <div>
+              <p class="expect"><b>獲取個人的專屬數字 ID：</b>在 Telegram 搜尋 `@userinfobot`。點擊 <b>Start</b>，它會立刻回傳你專屬的數字 ID（一串 9-10
+                位數的純數字，例如：<code>987654321</code>）。</p>
+              <p class="check">✅ 確認：記下這串屬於你的 ID 數字。</p>
+            </div>
+          </li>
+          <li><span class="wn">2</span>
+            <div>
+              <p class="expect"><b>終端機指令修改（主要推薦做法）：</b>在電腦的終端機執行以下指令，直接將安全防護政策改為白名單，並設定你的數字 ID（請將 <code>你的數字ID</code>
+                替換為你在 Step 1 取得的純數字，例如 <code>987654321</code>）：</p>
+              <div class="say terminal">openclaw config set channels.telegram.dmPolicy "allowlist"</div>
+              <div class="say terminal">openclaw config set channels.telegram.allowFrom "[你的數字ID]"</div>
+              <p class="expect">👀 <b>你會看到：</b>終端機回應設定更新成功的訊息。使用指令修改可以避免手動編輯 JSON 格式錯誤的風險。</p>
+            </div>
+          </li>
+          <li><span class="wn">3</span>
+            <div>
+              <p class="expect"><b>手動編輯設定檔（備援做法）：</b>若上方指令執行有問題，也可以手動開啟設定檔修改。先在終端機輸入以下指令取得設定檔的絕對路徑：</p>
+              <div class="say terminal">openclaw config file</div>
+              <p class="expect">接著使用你習慣的文字編輯器（如 VS Code、記事本）打開該路徑的檔案，找到 <code>channels</code> &rarr;
+                <code>telegram</code> 區塊，修改安全權限如下：</p>
+              <div class="say config" style="background:#1A1A1A;color:#B3DFE5;">
+                "telegram": {
+                "enabled": true,
+                "botToken": "你申請的Token",
+                "dmPolicy": "allowlist",
+                "allowFrom": ["你的數字ID"]
+                }
+              </div>
+              <p class="check">✅ 修改後儲存設定檔並關閉編輯器。</p>
+            </div>
+          </li>
+          <li><span class="wn">4</span>
+            <div>
+              <p class="expect">在終端機重啟服務以套用安全白名單：</p>
+              <div class="say terminal">openclaw gateway restart</div>
+              <p class="expect">👀 <b>白名單效果測試：</b>這時候，你可以讓旁邊的同學搜尋你的 Bot，請他對你的 Bot
+                傳送任何訊息，看看會不會被已讀不回。然後你自己傳送一則訊息，確認只有你可以控制它。</p>
+              <p class="check">✅ 確認：其他人的指令一律被阻擋（Logs 中會顯示攔截紀錄），只有你擁有這台 Agent 的專屬指揮權！</p>
+            </div>
+          </li>
+        </ol>
+        <div class="tip alert"><b>⚠️ 安全警示：</b>如果白名單沒有設定好，別的同學只要對你的 Bot 下達 <code class="inline">rm -rf /</code>
+          或其他惡意指令，將會直接破壞你電腦上的檔案。<b>請務必完成 Part D 白名單設定，以保護你的系統安全！</b></div>
+      </section>
+
+      <footer>
+        <span>講師：吳政隆教授 · 主辦：<a href="https://bigdata.scu.edu.tw">東吳大學資料科學系</a> · <a
+            href="https://nlp.bigdata.scu.edu.tw">東吳大學自然語言處理實驗室</a></span>
+        <span>TELEGRAM BOT · BOTFATHER · CLI CONFIG · ALLOWLIST · v1.0</span>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    // 代碼複製按鈕 JavaScript：與主教材功能一致
+    document.addEventListener("DOMContentLoaded", () => {
+      const style = document.createElement("style");
+      style.textContent = `
+      .copy-btn {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.85);
+        border-radius: 6px;
+        padding: 5px;
+        cursor: pointer;
+        opacity: 0.65;
+        transition: opacity 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
+        user-select: none;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .copy-btn:hover {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+      }
+      .copy-btn.copied {
+        opacity: 1;
+        background: #0E7C5A !important;
+        border-color: #0E7C5A !important;
+        color: #fff !important;
+      }
+      @media (prefers-color-scheme: light) {
+        .say .copy-btn {
+          background: rgba(0, 0, 0, 0.05);
+          border: 1px solid rgba(0, 0, 0, 0.1);
+          color: rgba(0, 0, 0, 0.6);
+        }
+        .say .copy-btn:hover {
+          background: rgba(0, 0, 0, 0.12);
+          color: #000;
+        }
+      }
+    `;
+      document.head.appendChild(style);
+
+      const blocks = document.querySelectorAll(".say");
+      blocks.forEach(block => {
+        block.style.position = "relative";
+        const button = document.createElement("button");
+        button.className = "copy-btn";
+        button.type = "button";
+        button.title = "複製內容";
+        button.innerHTML = `
+        <svg class="copy-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <svg class="check-svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      `;
+
+        button.addEventListener("click", (e) => {
+          e.stopPropagation();
+          let textToCopy = block.innerText;
+          // 移除前綴字避免學員複製到
+          textToCopy = textToCopy.replace(/^對 BotFather ›\s*/g, "");
+          textToCopy = textToCopy.replace(/^終端機指令 ›\s*/g, "");
+          textToCopy = textToCopy.replace(/^對你的 Bot ›\s*/g, "");
+          textToCopy = textToCopy.replace(/^設定檔內容 ›\s*/g, "");
+          textToCopy = textToCopy.trim();
+
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            const copySvg = button.querySelector(".copy-svg");
+            const checkSvg = button.querySelector(".check-svg");
+            copySvg.style.display = "none";
+            checkSvg.style.display = "block";
+            button.classList.add("copied");
+
+            setTimeout(() => {
+              copySvg.style.display = "block";
+              checkSvg.style.display = "none";
+              button.classList.remove("copied");
+            }, 2000);
+          }).catch(err => {
+            console.error("Failed to copy:", err);
+          });
+        });
+
+        block.appendChild(button);
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 召喚師 · 學習前測問卷</title>
+  <style>
+    :root {
+      --paper: #F1F2EF;
+      --raised: #FBFCFA;
+      --ink: #191B1A;
+      --ink-soft: #4A514D;
+      --ink-faint: #7C837E;
+      --line: #DCDFD9;
+      --line-soft: #E7E9E4;
+      --teal: #0E7C7B;
+      --teal-deep: #0A5C5B;
+      --teal-wash: #E2EEED;
+      --shadow: 0 1px 2px rgba(25, 27, 26, .05), 0 8px 22px -12px rgba(25, 27, 26, .18);
+      --shadow-hover: 0 4px 10px rgba(25, 27, 26, .08), 0 20px 38px -12px rgba(25, 27, 26, .18);
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      --mono: ui-monospace, "SF Mono", "SFMono-Regular", Menlo, "Cascadia Mono", "Roboto Mono", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--paper);
+      font-family: var(--sans);
+      color: var(--ink);
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* Head Header */
+    .mast {
+      margin-bottom: 30px;
+      background: var(--raised);
+      padding: 24px 30px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--teal-deep);
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    .brand svg {
+      width: 28px;
+      height: 28px;
+      color: var(--teal);
+    }
+
+    .brand b span {
+      color: var(--teal);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 10px;
+    }
+
+    .lead {
+      color: var(--ink-soft);
+      font-size: 15px;
+    }
+
+    .form-panel {
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .q-card {
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px 30px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .q-card:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    .q-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--ink);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .q-title .num {
+      font-family: var(--mono);
+      color: var(--teal);
+      font-size: 15px;
+      background: var(--teal-wash);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    /* Form Fields */
+    .input-text {
+      width: 100%;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 15px;
+      color: var(--ink);
+      font-family: inherit;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .input-text:focus {
+      outline: none;
+      border-color: var(--teal);
+      background-color: var(--raised);
+    }
+
+    /* Custom Radio & Checkbox */
+    .option-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+      padding: 12px 14px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .option-item:hover {
+      border-color: var(--teal);
+      background: var(--raised);
+    }
+
+    .option-item input {
+      display: none;
+    }
+
+    .option-item .indicator {
+      width: 18px;
+      height: 18px;
+      border: 2px solid var(--ink-faint);
+      border-radius: 4px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .option-item input[type="radio"]+.indicator {
+      border-radius: 50%;
+    }
+
+    .option-item input:checked+.indicator {
+      border-color: var(--teal);
+      background: var(--teal);
+    }
+
+    .option-item input:checked+.indicator::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .option-item input[type="checkbox"]:checked+.indicator::after {
+      content: "✔";
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+      background: transparent;
+    }
+
+    .option-text {
+      font-size: 14.5px;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
+
+    .option-item input:checked~.option-text {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    /* Star Rating */
+    .stars {
+      display: flex;
+      gap: 12px;
+      margin-top: 5px;
+    }
+
+    .star {
+      font-size: 32px;
+      cursor: pointer;
+      color: var(--line);
+      transition: color 0.15s ease, transform 0.15s ease;
+    }
+
+    .star:hover {
+      transform: scale(1.25);
+    }
+
+    .star.selected {
+      color: var(--teal);
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      width: 100%;
+      background: var(--teal-deep);
+      color: white;
+      border: none;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .submit-btn:hover {
+      background: var(--teal);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px -6px rgba(14, 124, 123, 0.4);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 13px;
+      color: var(--ink-faint);
+    }
+
+    footer a {
+      color: var(--teal-deep);
+      text-decoration: none;
+      border-bottom: 1px solid color-mix(in srgb, var(--teal) 40%, transparent);
+    }
+
+    /* Modal dialog */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(25, 27, 26, 0.6);
+      backdrop-filter: blur(4px);
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--raised);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: var(--shadow-hover);
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      color: var(--teal-deep);
+    }
+
+    .modal-desc {
+      font-size: 14px;
+      color: var(--ink-soft);
+      margin-bottom: 20px;
+    }
+
+    .json-box {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      font-family: var(--mono);
+      font-size: 12px;
+      text-align: left;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .modal-btn {
+      background: var(--teal);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal-btn:hover {
+      background: var(--teal-deep);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header class="mast">
+      <p class="eyebrow">AI 召喚師：從使用 AI，到指揮 AI</p>
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+          stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 3v6" />
+          <path d="M12 9c-2 0-3 1-3.5 3l-1 5" />
+          <path d="M12 9c2 0 3 1 3.5 3l1 5" />
+          <path d="M12 9v6" />
+          <circle cx="12" cy="3" r="1.4" fill="currentColor" stroke="none" />
+        </svg>
+        <b>open<span>claw</span> · AI 召喚師工作坊</b>
+      </div>
+      <h1>🏁 學習前測問卷 (起跑檢查)</h1>
+      <p class="lead">講師：吳政隆教授 · 主辦：東吳大學資料科學系 · 自然語言處理實驗室</p>
+    </header>
+
+    <div style="margin: 0 0 22px; border-left: 4px solid #C9820A; background: #F7EBD3; color: #191B1A; padding: 14px 18px; border-radius: 0 10px 10px 0; font-size: 15px; line-height: 1.6;">
+      📱 <b>課前小提醒：</b>第二天有一個主題會把 AI 助理接到你的手機 <b>Telegram</b>。Telegram 註冊需要用<b>手機門號收簡訊驗證</b>，請<b>盡量在來上課前先裝好 App、完成帳號登入</b>，才不會在課堂上卡在等簡訊。（沒有也沒關係，屆時可和同學共用一支手機。）
+    </div>
+
+    <!-- Pre-test Form -->
+    <form id="preForm" class="form-panel" onsubmit="handleFormSubmit(event)">
+      <div class="q-card">
+        <div class="q-title"><span class="num">Q1</span> 你的學校與年級？</div>
+        <input type="text" name="pre_school_grade" class="input-text" placeholder="例如：東吳附中高二" required>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title"><span class="num">Q2</span> 你的姓名或暱稱？</div>
+        <input type="text" name="pre_name" class="input-text" placeholder="例如：王小明" required>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title"><span class="num">Q3</span> 在本工作坊之前，你最常使用 AI 做什麼？（可複選）</div>
+        <div class="option-list">
+          <label class="option-item">
+            <input type="checkbox" name="pre_usage" value="寫英文作業、翻譯">
+            <span class="indicator"></span>
+            <span class="option-text">寫英文作業、翻譯</span>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" name="pre_usage" value="查資料、寫報告大綱">
+            <span class="indicator"></span>
+            <span class="option-text">查資料、寫報告大綱</span>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" name="pre_usage" value="寫程式、除錯">
+            <span class="indicator"></span>
+            <span class="option-text">寫程式、除錯</span>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" name="pre_usage" value="娛樂（聊天、畫圖、寫歌）">
+            <span class="indicator"></span>
+            <span class="option-text">娛樂（聊天、畫圖、寫歌）</span>
+          </label>
+          <label class="option-item">
+            <input type="checkbox" name="pre_usage" value="從來沒有使用過 AI">
+            <span class="indicator"></span>
+            <span class="option-text">從來沒有使用過 AI</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title"><span class="num">Q4</span> 你曾使用過「終端機」或寫過任何程式程式碼嗎？</div>
+        <div class="option-list">
+          <label class="option-item">
+            <input type="radio" name="pre_terminal" value="無終端機也無程式經驗" required>
+            <span class="indicator"></span>
+            <span class="option-text">沒用過終端機，也沒寫過程式（Scratch 除外）</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="pre_terminal" value="用過積木程式">
+            <span class="indicator"></span>
+            <span class="option-text">用過 Scratch 等積木程式，但沒有打過程式碼</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="pre_terminal" value="寫過程式但未用過終端機">
+            <span class="indicator"></span>
+            <span class="option-text">曾寫過程式碼（如 Python, C++, HTML 等），但沒怎麼用過終端機</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="pre_terminal" value="常用程式與終端機">
+            <span class="indicator"></span>
+            <span class="option-text">補過程式或經常寫程式，也會使用終端機</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title"><span class="num">Q5</span> 如果你想讓 AI 寫一篇報告，你覺得哪種指令效果最好？</div>
+        <div class="option-list">
+          <label class="option-item">
+            <input type="radio" name="pre_prompt" value="幫我寫報告" required>
+            <span class="indicator"></span>
+            <span class="option-text">「幫我寫一篇台灣黑熊的報告」</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="pre_prompt" value="結構化三要素指令">
+            <span class="indicator"></span>
+            <span class="option-text">「請用國中生聽得懂的語氣，幫我寫一篇 500 字的台灣黑熊介紹報告，並用條列式說明三個重點」</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="pre_prompt" value="特徵提問">
+            <span class="indicator"></span>
+            <span class="option-text">「台灣黑熊的特徵是什麼？」</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title"><span class="num">Q6</span> 你聽過「AI 代理人（Agent）」嗎？你認為它和聊天 AI 有何不同？</div>
+        <div class="option-list">
+          <label class="option-item">
+            <input type="radio" name="pre_agent" value="沒聽過，覺得一樣" required>
+            <span class="indicator"></span>
+            <span class="option-text">沒聽過，覺得應該是一樣的東西</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="pre_agent" value="聽過但不清楚差別">
+            <span class="indicator"></span>
+            <span class="option-text">聽過，但不太清楚差別</span>
+          </label>
+          <label class="option-item">
+            <input type="radio" name="pre_agent" value="知道，Agent能規劃並用工具">
+            <span class="indicator"></span>
+            <span class="option-text">知道，一般 AI 只能聊天，而 Agent 能自主規畫步驟並呼叫瀏覽器、讀寫檔案來完成任務</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="q-card">
+        <div class="q-title"><span class="num">Q7</span> 你對於「指揮 AI 助理來幫你自動解決學習或生活問題」的信心指數？</div>
+        <div class="stars" id="preConfidenceStars">
+          <span class="star" onclick="setRating(1)">★</span>
+          <span class="star" onclick="setRating(2)">★</span>
+          <span class="star" onclick="setRating(3)">★</span>
+          <span class="star" onclick="setRating(4)">★</span>
+          <span class="star" onclick="setRating(5)">★</span>
+        </div>
+        <input type="hidden" name="pre_confidence" id="pre_confidence" value="" required>
+      </div>
+
+      <button type="submit" class="submit-btn">送出前測問卷</button>
+    </form>
+
+    <!-- Success Modal -->
+    <div class="modal" id="resultModal">
+      <div class="modal-content">
+        <div class="modal-title">🎉 問卷提交成功！</div>
+        <div class="modal-desc" id="modalDesc">資料已序列化為 JSON，並傳送至後端儲存。</div>
+        <div class="json-box" id="jsonDisplay"></div>
+        <button class="modal-btn" onclick="closeModal()">關閉視窗</button>
+      </div>
+    </div>
+
+    <footer>
+      <p>AI 召喚師：從使用 AI，到指揮 AI · 工作坊問卷系統</p>
+      <p style="margin-top: 5px;">&copy; 2026 講師：吳政隆教授 · 主辦：東吳大學資料科學系 · NLP 實驗室</p>
+    </footer>
+  </div>
+
+  <script>
+    // ==========================================
+    // ⚙️ 講師/助教設定區：請在此填入接收資料的 API 網址
+    // ==========================================
+    const DEFAULT_SURVEY_ENDPOINT = 'https://script.google.com/macros/s/AKfycbwA2O384aMgbu_1T0scyw4BKGoKPNjQ8S2QP6clzyFtRxpoeo_Kr_P-sE4i9s45rPnB9g/exec';
+
+    // 優先從網址參數 ?endpoint= 讀取，方便無痛測試，其次使用預設值
+    const urlParams = new URLSearchParams(window.location.search);
+    const SURVEY_ENDPOINT = urlParams.get('endpoint') || DEFAULT_SURVEY_ENDPOINT;
+
+    // 點擊星星評分邏輯
+    function setRating(val) {
+      const stars = document.getElementById('preConfidenceStars').children;
+      for (let i = 0; i < stars.length; i++) {
+        if (i < val) {
+          stars[i].classList.add('selected');
+        } else {
+          stars[i].classList.remove('selected');
+        }
+      }
+      document.getElementById('pre_confidence').value = val;
+    }
+
+    // 處理表單提交
+    function handleFormSubmit(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const formData = new FormData(form);
+      const data = {};
+
+      for (const [key, value] of formData.entries()) {
+        if (key === 'pre_usage') {
+          if (!data[key]) {
+            data[key] = [];
+          }
+          data[key].push(value);
+        } else {
+          data[key] = value;
+        }
+      }
+
+      const confidenceVal = data['pre_confidence'];
+      if (!confidenceVal) {
+        alert('請點擊星星，為您的信心指數進行評分！');
+        return;
+      }
+
+      data['survey_type'] = 'pre';
+      data['timestamp'] = new Date().toISOString();
+
+      console.log('Submitted Data:', data);
+
+      if (SURVEY_ENDPOINT && SURVEY_ENDPOINT !== '') {
+        // 使用 URLSearchParams 來將資料序列化成 application/x-www-form-urlencoded 格式
+        // 這樣瀏覽器在 no-cors 模式下才不會把 body 剝除，GAS 也更容易接收
+        const searchParams = new URLSearchParams();
+        searchParams.append('payload', JSON.stringify(data));
+
+        fetch(SURVEY_ENDPOINT, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: searchParams
+        })
+          .then(() => {
+            showModal(data, true);
+          })
+          .catch(err => {
+            console.error('Error submitting form:', err);
+            showModal(data, false);
+          });
+      } else {
+        showModal(data, false);
+      }
+    }
+
+    function showModal(data, successApi) {
+      const modalDesc = document.getElementById('modalDesc');
+      const jsonDisplay = document.getElementById('jsonDisplay');
+
+      if (successApi) {
+        modalDesc.innerHTML = `🎉 你的回答已成功傳送至後端資料庫！感謝你的填寫。`;
+        jsonDisplay.style.display = 'none'; // 隱藏 JSON 框與接收端點
+      } else {
+        modalDesc.innerHTML = `💡 <b>提示</b>：問卷後端網址（SURVEY_ENDPOINT）尚未設定，但已在本機打包完成。<br>您也可以在網址加上 <code>?endpoint=您的網頁應用程式URL</code> 來進行測試！<br>下方是您剛填寫完畢的完整 JSON 資料格式：`;
+        jsonDisplay.style.display = 'block'; // 顯示 JSON 框
+        jsonDisplay.textContent = JSON.stringify(data, null, 2);
+      }
+
+      document.getElementById('resultModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('resultModal').classList.remove('active');
+      window.location.href = 'index.html'; // 填完返回首頁
+    }
+  </script>
+</body>
+
+</html>
